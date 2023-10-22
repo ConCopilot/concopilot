@@ -1,0 +1,31 @@
+group_id: <group_id>
+artifact_id: <artifact_id>
+version: <version>
+
+type: resource
+as_plugin: false
+
+resource_type: <resource_type>
+
+setup:
+  pip:
+    - <dependences>
+    # ...
+  package: <python_package> # the full package path where the plugin __init__.py exist
+
+url: <url>
+
+developers:
+  -
+    name: <developer_name>
+    id: <developer_id>
+    email: <developer_email>
+    url: <developer_url>
+
+licenses:
+  -
+    name: <license_name>
+    url: <license_url>
+
+config:
+  <config_key_1>: <config_value_1>

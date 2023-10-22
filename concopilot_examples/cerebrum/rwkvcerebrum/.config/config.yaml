@@ -1,0 +1,36 @@
+group_id: org.concopilot.example.rwkv
+artifact_id: rwkv-cerebrum
+version: 0.0.0
+
+type: cerebrum
+as_plugin: false
+
+setup:
+  pip:
+    - concopilot_examples
+  package: concopilot_examples.cerebrum.rwkvcerebrum
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  # id: default
+  name: Bob
+  role: AI-Assistant
+  max_tokens: 1200
+  instruction_file: instruction.md
+
+  resources:
+    -
+      type: model
+      id: default

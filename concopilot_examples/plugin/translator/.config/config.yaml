@@ -1,0 +1,62 @@
+group_id: org.concopilot.example
+artifact_id: translator
+version: 0.0.0
+
+type: plugin
+as_plugin: true
+
+info:
+  title: translator
+  description: "This is a plugin provides a command to translate a given content of texts to the specific language.
+                It is backed on a LLM to accomplish the summarization."
+commands:
+  -
+    command_name: translate
+    description: translate the given content of texts to the specific language
+    parameters:
+      -
+        name: content
+        type: string
+        description: "The content to be translated.
+                      You are not provided the input language information, judge the input language yourself, read and understand the content, and translate it into the target language."
+        required: true
+      -
+        name: target_language
+        type: string
+        description: the target language that you need to translate the content to.
+        required: true
+    response:
+      -
+        name: content
+        type: string
+        description: the translate result.
+        optional: false
+
+setup:
+  pip:
+    - concopilot_examples
+  package: concopilot_examples.plugin.translator
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  #id: default
+  #name: null
+  instruction_file: instruction.txt
+  max_tokens: 1200
+
+  resources:
+    -
+      type: model
+      id: default

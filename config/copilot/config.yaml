@@ -1,0 +1,100 @@
+group_id: <group_id>
+artifact_id: <artifact_id>
+version: <version>
+
+type: copilot
+as_plugin: false
+
+setup:
+  pip:
+    - <dependences>
+    # ...
+  package: <python_package> # the full package path where the plugin __init__.py exist
+
+url: <url>
+
+developers:
+  -
+    name: <developer_name>
+    id: <developer_id>
+    email: <developer_email>
+    url: <developer_url>
+
+licenses:
+  -
+    name: <license_name>
+    url: <license_url>
+
+config:
+  <config_key_1>: <config_value_1>
+
+  resource_manager:
+    group_id: <resource_manager_group_id>
+    artifact_id: <resource_manager_artifact_id>
+    version: <version>
+    # config: # optional
+    #   <config_key_1>: <config_value_1>
+    # config_file_path: <optional_config_path>
+    # config_file: <optional_config_file>
+    config:
+      resources:
+        -
+          group_id: <resource_group_id>
+          artifact_id: <resource_artifact_id>
+          version: <version>
+          # config:
+          #   id: <optional_id>
+          #   <config_key_1>: <config_value_1>
+          # config_file_path: <optional_config_path>
+          # instance_id: <optional_instance_id>
+        -
+          # ...
+
+  cerebrum:
+    group_id: <cerebrum_group_id>
+    artifact_id: <cerebrum_artifact_id>
+    version: <version>
+    # config: # optional
+    #   <config_key_1>: <config_value_1>
+    # config_file_path: <optional_config_path>
+
+  interactor:
+    group_id: <interactor_group_id>
+    artifact_id: <interactor_artifact_id>
+    version: <version>
+
+  plugin_manager:
+    group_id: <plugin_manager_group_id>
+    artifact_id: <plugin_manager_artifact_id>
+    version: <version>
+    config:
+      plugin_prompt_generator:
+        group_id: <plugin_prompt_generator_group_id>
+        artifact_id: <plugin_prompt_generator_artifact_id>
+        version: <version>
+      plugins:
+        -
+          group_id: <plugin_group_id>
+          artifact_id: <plugin_artifact_id>
+          version: <version>
+          # config:
+          #   id: <optional_id>
+          #   <config_key_1>: <config_value_1>
+          # config_file_path: <optional_config_path>
+        -
+          # ...
+
+  message_manager:
+    group_id: <message_group_id>
+    artifact_id: <message_artifact_id>
+    version: <version>
+
+  storage:
+    group_id: <storage_manager_group_id>
+    artifact_id: <storage_manager_artifact_id>
+    version: <version>
+
+  user_interface:
+    group_id: <user_interface_group_id>
+    artifact_id: <user_interface_artifact_id>
+    version: <version>

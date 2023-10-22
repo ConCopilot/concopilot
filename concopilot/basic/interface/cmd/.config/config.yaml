@@ -1,0 +1,29 @@
+group_id: org.concopilot.basic.interface
+artifact_id: cmd-user-interface
+version: 0.0.0
+
+type: user_interface
+as_plugin: false
+
+setup:
+  pip:
+    - concopilot
+  package: concopilot.basic.interface.cmd
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  default_request_prompt: "Waiting for your input:"
+  default_received_prompt: "Your message received."
+  multiple_line_input: true

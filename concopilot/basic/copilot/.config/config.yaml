@@ -1,0 +1,76 @@
+group_id: org.concopilot.basic.copilot
+artifact_id: basic-copilot
+version: 0.0.0
+
+type: copilot
+as_plugin: false
+
+setup:
+  pip:
+    - concopilot
+  package: concopilot.basic.copilot
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  resource_manager:
+    group_id: org.concopilot.basic.resource.manager
+    artifact_id: basic-resource-manager
+    version: 0.0.0
+    config:
+      resources:
+        -
+          group_id: <resource_group_id>
+          artifact_id: <resource_artifact_id>
+          version: <resource_version>
+
+  cerebrum:
+    group_id: <cerebrum_group_id>
+    artifact_id: <cerebrum_artifact_id>
+    version: <cerebrum_version>
+
+  interactor:
+    group_id: <interactor_group_id>
+    artifact_id: <interactor_artifact_id>
+    version: <interactor_version>
+
+  plugin_manager:
+    group_id: org.concopilot.basic.plugin.manager
+    artifact_id: basic-plugin-manager
+    version: 0.0.0
+    config:
+      plugin_prompt_generator:
+        group_id: <plugin_prompt_generator_group_id>
+        artifact_id: <plugin_prompt_generator_artifact_id>
+        version: <plugin_prompt_generator_version>
+      plugins:
+        -
+          group_id: <plugin_group_id>
+          artifact_id: <plugin_artifact_id>
+          version: <plugin_version>
+
+  message_manager:
+    group_id: org.concopilot.basic.message.manager
+    artifact_id: basic-msg-manager
+    version: 0.0.0
+
+  storage:
+    group_id: <storage_group_id>
+    artifact_id: <storage_artifact_id>
+    version: <storage_version>
+
+  user_interface:
+    group_id: <user_interface_group_id>
+    artifact_id: <user_interface_artifact_id>
+    version: <user_interface_version>

@@ -1,0 +1,38 @@
+group_id: org.concopilot.example.openai
+artifact_id: openai-cerebrum
+version: 0.0.0
+
+type: cerebrum
+as_plugin: false
+
+setup:
+  pip:
+    - concopilot_examples
+    - tiktoken
+  package: concopilot_examples.cerebrum.openaicerebrum
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  # id: default
+  name: GPT
+  role: AI-Assistant
+  max_tokens: 1200
+  use_function_call: false
+  instruction_file: instruction.md # this will be ignored if the use_function_call is true, else the prompt described in this file with the full plugin list will be added into the GPT message list.
+
+  resources:
+    -
+      type: model
+      id: default

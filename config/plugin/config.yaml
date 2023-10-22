@@ -1,0 +1,97 @@
+group_id: <group_id>
+artifact_id: <artifact_id>
+version: <version>
+
+type: plugin
+as_plugin: true
+
+info: # The basic information of the plugin. Must exist if `as_plugin` is `true`.
+  title: <title> # the title of the plugin
+  description: <description> # description of the plugin
+  description_for_human: <description_for_human> # optional, description for human to read
+  description_for_model: <description_for_model> # optional, description for LLMs to read
+  prompt: <optional_prompt> # if exists, it is the instruction to prompt LLMs
+  prompt_file_name: <optional_prompt_file_name> # if exists, it is the file located in the same folder of this "config.yaml" that contains the instructions to prompt LLMs
+  prompt_file_path: <optional_prompt_file_path> # if exists, it is the full file path that indicate the file contains the instructions to prompt LLMs
+commands: # API list that the plugin provided. Must exist if `as_plugin` is `true`.
+  -
+    command_name: <command_name_1> # the name of the first API
+    description: <command_description_1> # the API description
+    parameters: # parameters that the API need to be passed
+      -
+        name: <param_name_1> # the name of the first parameter
+        type: string # the type of the first parameter
+        description: <description_1> # the parameter description
+        enum: # optional, entire possible values of this parameter
+          - <enum_1>
+          - <enum_2>
+        required: true # if true, the parameter must be provided when calling the API, and if false, the parameter is optional.
+        example: <example> # optional, an optional field gives an example of the parameter.
+      -
+        name: <param_name_2>
+        type: string
+        description: <description_2>
+        required: true
+        example: <example>
+    response: # fields in the API response
+      -
+        name: <response_field_name_1> # the name of the first response field
+        type: string # the type of the first response field
+        description: <response_field_description_1> # the response field description.
+        optional: false # if false, this response field will always be included in the response, and if true, this response field can be absent in the response.
+        example: <response_field_example_1> # an optional field gives an example of this response field.
+      -
+        name: <response_field_name_2>
+        type: string
+        description: <response_field_description_2>
+        optional: false
+        example: <response_field_example_2>
+  -
+    command_name: <command_name_2>
+    description: <command_description_2>
+    parameters:
+      # ...
+    response:
+      # ...
+  # ...
+
+setup:
+  pip:
+    - <dependences>
+    # ...
+  package: <python_package> # the full package path where the plugin __init__.py exist
+
+url: <url>
+
+developers:
+  -
+    name: <developer_name>
+    id: <developer_id>
+    email: <developer_email>
+    url: <developer_url>
+
+licenses:
+  -
+    name: <license_name>
+    url: <license_url>
+
+config:
+  id: <id> # this will override the default random id to this user specified id
+  name: <name> # this will assign a user specified name to this plugin, if it is null, the info.title will be used as the plugin name, or None if the info.title does not exist
+  <config_key_1>: <config_value_1>
+  <config_key_2>: <config_value_2>
+
+  resources:
+    -
+      # Each resource will be searched from the Resource Manager with exactly the same rule of
+      # a plugin's `def get_resource(self, resource_id: str = None, resource_name: str = None, resource_type: str = None) -> Optional[Resource]` method.
+      # The priority order is `id`, `name`, and `type`
+      # Only the first valid field with the highest priority will be used, and others will be ignored.
+      # In practice, provide the resource type only will make it work if you have exactly only one resource each resource type.
+      type: <resource_type>
+      id: default # default means the unique or first resource with the same type defined in the Copilot instance
+      name: <resource_name>
+    -
+      type: <resource_type>
+      # id: <recource_id>
+      # name: <resource_name>
