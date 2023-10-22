@@ -1,0 +1,57 @@
+group_id: org.concopilot.example
+artifact_id: ddg-search
+version: 0.0.0
+
+type: plugin
+as_plugin: true
+
+info:
+  title: DuckDuckGoSearch
+  description: "This plugin provides a search API to help access the Internet."
+  description_for_model: "You can use this API to search knowledge, facts, peoples opinion, new, etc., from the Internet via DuckDuckGo Search Engine, when you find something you are not very confident."
+commands:
+  -
+    command_name: search
+    description: call the search engine to search items related to the query from the internet.
+    parameters:
+      -
+        name: query
+        type: string
+        description: the query passed to the search engine
+        required: true
+      -
+        name: num_results
+        type: int
+        description: "The max number of results the search engine should return in the response.
+                      If not passed, the num_results value in the config section of this file will be used."
+        required: false
+    response:
+      -
+        name: results
+        type: List[Object]
+        description: the result list returned by the search engine.
+        optional: false
+
+setup:
+  pip:
+    - concopilot_examples
+    - duckduckgo_search
+  package: concopilot_examples.plugin.duckduckgosearch
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  #id: default
+  #name: null
+  num_results: 8

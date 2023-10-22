@@ -1,0 +1,93 @@
+group_id: org.concopilot.basic.storage
+artifact_id: disk-storage
+version: 0.0.0
+
+type: storage
+as_plugin: true
+
+info:
+  title: disk_storage
+  description: "This is a plugin provides access to disk files.
+                Three APIs are provided: read, write, and delete, which are read content of a file, write content to a file, and delete a file, respectively.
+                Only relative file paths are acceptable."
+commands:
+  -
+    command_name: read
+    description: read content from a file with the specified path.
+    parameters:
+      -
+        name: file_path
+        type: string
+        description: the path to the file.
+        required: true
+        example: memory/data/last.txt
+    response:
+      -
+        name: content
+        type: string
+        description: the content of the file.
+        optional: false
+  -
+    command_name: write
+    description: write content to a file with the specified path.
+    parameters:
+      -
+        name: file_path
+        type: string
+        description: the path to the file.
+        required: true
+        example: memory/data/to_be_written.txt
+      -
+        name: content
+        type: string
+        description: the content to be written to the file.
+        required: true
+    response:
+      -
+        name: status
+        type: bool
+        description: if the writing operation success or not.
+        optional: false
+  -
+    command_name: delete
+    description: delete a file represented by the given path.
+    parameters:
+      -
+        name: file_path
+        type: string
+        description: the path to the file
+        required: true
+        example: memory/data/need_to_be_deleted.txt
+    response:
+      - name: status
+        type: bool
+        description: if the deleting operation success or not.
+        optional: false
+
+setup:
+  pip:
+    - concopilot
+  package: concopilot.basic.storage.disk
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  root_directory: null
+  sub_root_key: _sub
+  asset_key: storage # the key in the copilot context assets that retains all the stored file names
+
+  resources:
+    -
+      type: disk
+      id: default

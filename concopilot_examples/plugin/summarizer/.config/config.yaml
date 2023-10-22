@@ -1,0 +1,66 @@
+group_id: org.concopilot.example
+artifact_id: summarizer
+version: 0.0.0
+
+type: plugin
+as_plugin: true
+
+info:
+  title: summarizer
+  description: "This is a plugin provides a command to summarize a given list of texts and an optional previous summary.
+                Note that the previous summary was summarized in the previous step so that it has happened before the input list of contents.
+                It is backed on a LLM to accomplish the summarization.
+                You yourself also has the ability to do the summarization, so note that the ability of the plugin may not be better than yours."
+commands:
+  -
+    command_name: summarize
+    description: make a summarization of the given list of texts and the optional previous summary
+    parameters:
+      -
+        name: contents
+        type: List[Any]
+        description: "The content list to summarize.
+                      The list element can be in any type, 
+                      if the element is a string, it will be passed directly,
+                      else the element will be serialized in json and be passed as a json string."
+        required: true
+      -
+        name: previous_summary
+        type: string
+        description: the previous summary that was summarized in the previous step of summarization.
+        required: false
+    response:
+      -
+        name: summary
+        type: string
+        description: the summary of both the previous summary and the input contents.
+        optional: false
+
+setup:
+  pip:
+    - concopilot_examples
+  package: concopilot_examples.plugin.summarizer
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  #id: default
+  #name: null
+  instruction_file: instruction.txt
+  max_tokens: 200
+
+  resources:
+    -
+      type: model
+      id: default

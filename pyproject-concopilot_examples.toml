@@ -1,0 +1,19 @@
+[project]
+name="concopilot_examples"
+version="0.0.0"
+authors=[
+    {name="ZHONG Weikun", email="zhong.weikun@live.com"}
+]
+description="ConCopilot simple examples."
+readme=""
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+dependencies=[
+    "concopilot"
+]
+
+[tool.setuptools.packages.find]
+where=["."]
+include=["concopilot_examples*"]

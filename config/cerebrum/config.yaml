@@ -1,0 +1,36 @@
+group_id: <group_id>
+artifact_id: <artifact_id>
+version: <version>
+
+type: cerebrum
+as_plugin: false
+
+setup:
+  pip:
+    - <dependences>
+    # ...
+  package: <python_package> # the full package path where the plugin __init__.py exist
+
+url: <url>
+
+developers:
+  -
+    name: <developer_name>
+    id: <developer_id>
+    email: <developer_email>
+    url: <developer_url>
+
+licenses:
+  -
+    name: <license_name>
+    url: <license_url>
+
+config:
+  #id: default
+  #name: null
+  token_limit: token_limit
+
+  resources:
+    -
+      type: model
+      id: default

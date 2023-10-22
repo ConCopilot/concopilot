@@ -1,0 +1,186 @@
+# -*- coding: utf-8 -*-
+
+import json
+import re
+import regex
+import logging
+
+from typing import Dict, Tuple, Any, Optional
+
+from .....framework.message import Message
+from .....framework.message.manager import MessageManager
+from .....framework.cerebrum import InteractResponse
+from .....util.identity import Identity
+from .....package.config import Settings
+
+settings=Settings()
+logger=logging.getLogger(__file__)
+
+
+class BasicJsonMessageManager(MessageManager):
+    def __init__(self, config: Dict):
+        super(BasicJsonMessageManager, self).__init__(config)
+
+    def parse(self, response: InteractResponse) -> Message:
+        sender=None
+        receiver=None
+        content=None
+        time=None
+        if response.content:
+            try:
+                reply=fix_json_using_multiple_techniques(response.content)
+                if isinstance(reply, dict):
+                    sender=reply.pop('sender', None)
+                    receiver=reply.pop('receiver', None)
+                    content=reply.pop('content', None)
+                    time=reply.pop('time', None)
+                else:
+                    content=reply
+                    reply={}
+            except Exception as e:
+                logger.warning('response.content parse failed!', exc_info=e)
+                content=response.content
+                reply={}
+        else:
+            reply={}
+        if response.plugin_call:
+            receiver=Identity(
+                role='plugin',
+                name=response.plugin_call.plugin_name
+            )
+            content=Message.Content(
+                command=response.plugin_call.command,
+                param=response.plugin_call.param
+            )
+        return Message(
+            sender=sender,
+            receiver=receiver,
+            content=content,
+            time=time if time else settings.current_time(),
+            **reply
+        )
+
+    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+        return {}
+
+
+def get_md_json_string(json_string: str) -> str:
+    json_string.strip()
+    if json_string.startswith('```json'):
+        json_string=json_string[7:].strip()
+    if json_string.endswith('```'):
+        json_string=json_string[:-3].strip()
+    return json_string
+
+
+def get_json_prefix_json_string(json_string: str) -> str:
+    json_string.strip()
+    if json_string.startswith('json '):
+        json_string=json_string[5:].strip()
+    return json_string
+
+
+def get_outermost_balanced_braces_json_string(json_string: str) -> str:
+    match=regex.compile(r'\{(?:[^{}]|(?R))*\}').search(json_string)
+    if match:
+        return match.group(0)
+
+
+def invalid_escape_json_parser(json_string: str, error: Exception = None) -> Tuple[Any, str, Optional[Exception]]:
+    if error is None:
+        try:
+            return json.loads(json_string), json_string, None
+        except json.JSONDecodeError as e:
+            error=e
+    error_message=str(error)
+    while error_message.startswith('Invalid \\escape'):
+        match=re.compile(r'\(char (\d+)\)').search(error_message)
+        bad_escape_location=int(match[1])
+        json_string=json_string[:bad_escape_location]+json_string[bad_escape_location+1:]
+        try:
+            return json.loads(json_string), json_string, None
+        except json.JSONDecodeError as e:
+            error=e
+            error_message=str(error)
+    return None, json_string, error
+
+
+def missing_quotes_json_parser(json_string: str, error: Exception = None) -> Tuple[Any, str, Optional[Exception]]:
+    if error is None:
+        try:
+            return json.loads(json_string), json_string, None
+        except json.JSONDecodeError as e:
+            error=e
+    if str(error).startswith('Expecting property name enclosed in double quotes'):
+        json_string=re.compile(r'([,{\[]+\s*|^)"?(\w+)"?:').sub(lambda m : f'{m[1]}"{m[2]}":', json_string)
+
+        try:
+            return json.loads(json_string), json_string, None
+        except json.JSONDecodeError as e:
+            error=e
+    return None, json_string, error
+
+
+def imbalance_braces_json_parser(json_string: str, error: Exception = None) -> Tuple[Any, str, Optional[Exception]]:
+    open_braces_count=json_string.count('{')
+    close_braces_count=json_string.count('}')
+
+    if open_braces_count!=close_braces_count:
+        while open_braces_count>close_braces_count:
+            json_string+='}'
+            close_braces_count+=1
+
+        while close_braces_count>open_braces_count:
+            json_string='{'+json_string
+            open_braces_count+=1
+
+        try:
+            return json.loads(json_string), json_string, None
+        except json.JSONDecodeError as e:
+            error=e
+    elif error is None:
+        try:
+            return json.loads(json_string), json_string, None
+        except json.JSONDecodeError as e:
+            error=e
+    return None, json_string, error
+
+
+def brace_finder_json_parser(json_string: str, error: Exception = None) -> Tuple[Any, str, Optional[Exception]]:
+    try:
+        brace_index=json_string.index('{')
+        json_string=json_string[brace_index:]
+        last_brace_index=json_string.rindex('}')
+        json_string=json_string[:last_brace_index+1]
+        return json.loads(json_string), json_string, None
+    except (json.JSONDecodeError, ValueError) as e:
+        return None, json_string, e
+
+
+def fix_and_parse_json(json_string) -> Tuple[Any, str, Optional[Exception]]:
+    json_parser=[
+        invalid_escape_json_parser,
+        missing_quotes_json_parser,
+        imbalance_braces_json_parser,
+        brace_finder_json_parser
+    ]
+    json_obj=None
+    error=None
+    for parser in json_parser:
+        json_obj, json_string, error=parser(json_string, error)
+        if json_obj is not None:
+            break
+    return json_obj, json_string, error
+
+
+def fix_json_using_multiple_techniques(json_string: str) -> Any:
+    json_string_parser=[
+        lambda json_string : get_json_prefix_json_string(get_md_json_string(json_string)),
+        get_outermost_balanced_braces_json_string
+    ]
+    error=None
+    for parser in json_string_parser:
+        json_obj, json_string, error=fix_and_parse_json(parser(json_string))
+        if json_obj is not None:
+            return json_obj
+    raise error

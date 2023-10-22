@@ -1,0 +1,24 @@
+group_id: org.concopilot.basic.plugin.manager
+artifact_id: basic-plugin-manager
+version: 0.0.0
+
+type: plugin_manager
+as_plugin: false
+
+setup:
+  pip:
+    - concopilot
+  package: concopilot.basic.plugin.manager
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt

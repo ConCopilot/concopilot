@@ -1,0 +1,35 @@
+group_id: org.concopilot.example
+artifact_id: lm-plugin-prompt-gen
+version: 0.0.0
+
+type: plugin_prompt_generator
+as_plugin: false
+
+setup:
+  pip:
+    - concopilot_examples
+    - PyYaml
+  package: concopilot_examples.plugin.promptgenerator
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  #id: default
+  #name: null
+  instruction_file: instruction.md
+
+  resources:
+    -
+      type: model
+      id: default
