@@ -22,8 +22,8 @@ dependencies=[
 ]
 
 [project.urls]
-"Homepage"="https://github.com/concopilot/ConCopilot"
-"Bug Tracker"="https://github.com/concopilot/ConCopilot/issues"
+"Homepage"="https://github.com/ConCopilot/concopilot"
+"Bug Tracker"="https://github.com/ConCopilot/concopilot/issues"
 
 [project.scripts]
 conpack="concopilot.package.conpack:main"

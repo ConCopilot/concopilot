@@ -47,7 +47,7 @@ Please note that ConCopilot do **NOT** take the responsibility of any malicious 
 
 ## Example
 
-See example source codes and configs [here](https://github.com/ConCopilot/concopilot/concopilot_examples).
+See example source codes and configs [here](https://github.com/ConCopilot/concopilot/tree/main/concopilot_examples).
 
 ### Installation
 
@@ -73,7 +73,7 @@ pip install --upgrade concopilot
 
 ##### Quick example
 
-1. Download this simplified Auto-GPT like [example copilot](https://github.com/ConCopilot/concopilot/concopilot_examples/config.yaml).
+1. Download this simplified Auto-GPT like [example copilot](https://github.com/ConCopilot/concopilot/blob/main/concopilot_examples/config.yaml).
 2. Run it:
 
     ```shell
