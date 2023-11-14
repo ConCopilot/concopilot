@@ -9,6 +9,7 @@ from typing import Dict, Tuple, Optional
 from concopilot.framework.plugin import Plugin, PluginManager
 from concopilot.framework.cerebrum import InteractParameter, InteractResponse, AbstractCerebrum
 from concopilot.framework.resource.category.model import LLM
+from concopilot.framework.message import Message
 from concopilot.util import ClassDict
 from concopilot.util.jsons import JsonEncoder
 
@@ -21,7 +22,8 @@ class OpenAICerebrum(AbstractCerebrum):
         super(OpenAICerebrum, self).__init__(config)
         self._model: LLM = None
         self.max_tokens: int = self.config.config.max_tokens
-        self._instruction_prompt: str = f'Make your response less than {self.max_tokens} tokens.'
+        self.msg_retrieval_mode: Message.RetrievalMode = Message.RetrievalMode[self.config.config.msg_retrieval_mode.upper()]
+        self._instruction_prompt: str = f'Make your response less than {self.max_tokens} tokens.' if self.max_tokens>0 else None
         self._plugin_prompt: str = None
         self._functions=[]
         self._function_plugin_map: Dict[str, Tuple[str, str]] = {}
@@ -96,10 +98,12 @@ class OpenAICerebrum(AbstractCerebrum):
                         'arguments': json.dumps(msg.content.param, cls=JsonEncoder, ensure_ascii=False)
                     }
                 elif role=='function':
-                    content=msg.content.content if isinstance(msg.content.content, str) else json.dumps(msg.content.content, cls=JsonEncoder, ensure_ascii=False)
+                    content=msg.content.data if isinstance(msg.content.data, str) else json.dumps(msg.content.data, cls=JsonEncoder, ensure_ascii=False)
                     name=msg.owner.name+'_'+msg.owner.command
                 else:
-                    content=json.dumps(msg, cls=JsonEncoder, ensure_ascii=False)
+                    content=msg.retrieve(self.msg_retrieval_mode)
+                    if not isinstance(content, str):
+                        content=json.dumps(content, cls=JsonEncoder, ensure_ascii=False)
 
                 current_context.append(OpenAICerebrum.create_chat_message(role, content, function_call, name))
 
@@ -118,7 +122,7 @@ class OpenAICerebrum(AbstractCerebrum):
         if len(self._functions)>0:
             inference_param['functions']=self._functions
             inference_param['function_call']='auto'
-        reply=self.model.inference(inference_param)
+        reply=self.model.inference(inference_param, **kwargs)
         reply.plugin_call=self.get_plugin_call(reply.pop('function_call', None))
 
         return InteractResponse(**reply)

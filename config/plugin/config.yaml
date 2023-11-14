@@ -85,9 +85,9 @@ config:
     -
       # Each resource will be searched from the Resource Manager with exactly the same rule of
       # a plugin's `def get_resource(self, resource_id: str = None, resource_name: str = None, resource_type: str = None) -> Optional[Resource]` method.
-      # The priority order is `id`, `name`, and `type`
-      # Only the first valid field with the highest priority will be used, and others will be ignored.
-      # In practice, provide the resource type only will make it work if you have exactly only one resource each resource type.
+      # Retrieve a resource with its resource id, resource name, and resource_type.
+      # if the `resource_id` is "default", it will be ignored.
+      # If the `resource_type` is provided alone, the first resource with the given resource type will be returned.
       type: <resource_type>
       id: default # default means the unique or first resource with the same type defined in the Copilot instance
       name: <resource_name>

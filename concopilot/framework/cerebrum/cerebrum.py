@@ -12,7 +12,7 @@ from ...util import ClassDict
 
 
 class InteractParameter(ClassDict):
-    def __init__(self, instructions: List[str] = None, command: str = None, message_history: List[Message] = None, assets: List[Asset] = None, content: str = None, require_token_len: bool = None, require_cost: bool = None, **kwargs):
+    def __init__(self, *, instructions: List[str] = None, command: str = None, message_history: List[Message] = None, assets: List[Asset] = None, content: str = None, require_token_len: bool = None, require_cost: bool = None, **kwargs):
         super(InteractParameter, self).__init__(**kwargs)
         self.instructions: List[str] = instructions
         self.command: str = command
@@ -26,13 +26,13 @@ class InteractParameter(ClassDict):
 
 class InteractResponse(ClassDict):
     class PluginCall(ClassDict):
-        def __init__(self, plugin_name: str, command: str, param: Dict, **kwargs):
+        def __init__(self, *, plugin_name: str, command: str, param: Dict, **kwargs):
             super(InteractResponse.PluginCall, self).__init__(**kwargs)
             self.plugin_name: str = plugin_name
             self.command: str = command
             self.param: ClassDict = ClassDict.convert(param)
 
-    def __init__(self, content: str = None, plugin_call: PluginCall = None, input_token_len: int = None, output_token_len: int = None, cost: float = None, **kwargs):
+    def __init__(self, *, content: str = None, plugin_call: PluginCall = None, input_token_len: int = None, output_token_len: int = None, cost: float = None, **kwargs):
         super(InteractResponse, self).__init__(**kwargs)
         self.content: str = content
         self.plugin_call: InteractResponse.PluginCall = plugin_call

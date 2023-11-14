@@ -1,7 +1,7 @@
 PyYAML
 
 #package
-validators
+validators>=0.20.7
 python-gnupg
 requests
 pycryptodome

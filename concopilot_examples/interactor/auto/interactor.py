@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import datetime
 import json
 import logging
 
@@ -16,6 +15,8 @@ from concopilot.util.context import Asset
 from concopilot.util.identity import Identity
 from concopilot.util.initializer import component
 from concopilot.util.jsons import JsonEncoder
+from concopilot.util.error import ConcopilotError
+from concopilot.util import ClassDict
 from concopilot import Settings
 
 
@@ -47,7 +48,8 @@ class AutoInteractor(BasicInteractor):
         self.message_history_start_key=self.config.config.message_history_key+'_start'
         self.message_summary_key=self.config.config.message_summary_key
         self.summarize_token_len=self.config.config.summarize_token_len
-        self.summarizer = component.create_component(self.config.config.summarizer)
+        self.summarizer=component.create_component(self.config.config.summarizer)
+        self.llm_param={}
 
     def config_resources(self, resource_manager: ResourceManager):
         super(AutoInteractor, self).config_resources(resource_manager)
@@ -69,23 +71,30 @@ class AutoInteractor(BasicInteractor):
             try:
                 if self.context.user_interface.has_user_msg():
                     count=0
-                    while True:
-                        msg=self.context.user_interface.get_user_msg()
-                        # AutoInteractor._check_msg(msg, Identity(role='user', id=None, name=None))
-                        message_history.append(msg)
-                        count+=1
+                    while msg:=self.context.user_interface.get_user_msg():
+                        if msg is not None:
+                            if msg.receiver and msg.receiver.role=='interactor' and msg.content:
+                                self.command(command_name=msg.content.command, param=msg.content.param)
+                            else:
+                                AutoInteractor._check_msg(msg, Identity(role='user', id=None, name=None))
+                                message_history.append(msg)
+                                count+=1
                         if not self.context.user_interface.has_user_msg():
                             break
                     cerebrum_command=cerebrum_command+f' Note that {count} incoming user message detected.'
 
                 response, message_history_start=self._interact_with_cerebrum(cerebrum_command, message_history, message_history_start, self.context.assets)
-                msg=self.message_manager.parse(response)
+                try:
+                    msg=self.message_manager.parse(response)
+                except Exception as e:
+                    logger.error('Failed to parse the cerebrum response message.', exc_info=e)
+                    raise ConcopilotError('Failed to parse the cerebrum response message, maybe the response format is not acceptable.')
                 AutoInteractor._check_msg(msg, Identity(role='cerebrum', id=self.cerebrum.id, name=self.cerebrum.name))
 
                 message_history.append(Message(
                     sender=Identity(role='user'),
                     receiver=Identity(role='cerebrum', id=self.cerebrum.id, name=self.cerebrum.name),
-                    content=Message.Content(content=cerebrum_command),
+                    content=Message.Content(text=cerebrum_command),
                     time=settings.current_time()
                 ))
                 message_history.append(msg)
@@ -94,16 +103,27 @@ class AutoInteractor(BasicInteractor):
                 cerebrum_command='Determine which next command to use, and respond using the format specified above.'
                 if msg.receiver is not None:
                     if msg.receiver.role=='system':
-                        if msg.content.content=='error':
+                        if msg.content.text=='error' or msg.content.command=='error':
                             cerebrum_command='Last command execution threw an error. Check the error in the interaction messages, and try to fix the error and determine which next command to use, and respond using the json format specified above.'
-                        elif msg.content.content=='exit':
+                        elif msg.content.command=='exit' or msg.content.text=='exit':
                             break
+                        else:
+                            raise ValueError(f'Unknown "command" in the "content" section! Got "{msg.content.command}", but only "error" and "exit" are acceptable.')
                     elif msg.receiver.role=='user':
-                        msg=self.context.user_interface.on_user_msg(msg)
+                        self.context.user_interface.send_msg_user(msg)
+                        while msg:=self.context.user_interface.wait_user_msg():
+                            if msg is not None:
+                                if msg.receiver and msg.receiver.role=='interactor' and msg.content:
+                                    self.command(command_name=msg.content.command, param=msg.content.param)
+                                else:
+                                    break
+                            else:
+                                logger.error('User interface pipeline is broken. Will exit.')
+                                break
+                        if not msg:
+                            break
                         AutoInteractor._check_msg(msg, Identity(role='user', id=None, name=None))
                         message_history.append(msg)
-                    elif msg.receiver.role=='cerebrum':
-                        pass
                     elif msg.receiver.role=='plugin':
                         plugin=self.plugin_manager.get_plugin(name=msg.receiver.name)
                         if plugin is None:
@@ -111,15 +131,17 @@ class AutoInteractor(BasicInteractor):
                         msg=plugin.on_msg(msg)
                         AutoInteractor._check_msg(msg, Identity(role='plugin', id=plugin.id, name=plugin.name))
                         message_history.append(msg)
+                    else:
+                        raise ValueError(f'Unknown "role" in the "receiver" section! Got "{msg.receiver.role}", but only "system", "user", and "plugin" are acceptable.')
             except Exception as e:
                 logger.error('An error happened during the thinking loop.', exc_info=e)
                 msg=Message(
                     sender=Identity(role='system'),
                     receiver=Identity(role='cerebrum', id=self.cerebrum.id, name=self.cerebrum.name),
-                    content={
-                        'content': 'error',
-                        'error_message': f'{str(e.__class__.__name__)}: {str(e)}'
-                    }
+                    content=Message.Content(
+                        text='error',
+                        data=f'{str(e.__class__.__name__)}: {str(e)}'
+                    )
                 )
                 AutoInteractor._check_msg(msg, Identity(role='system', id=None, name=None))
                 message_history.append(msg)
@@ -141,11 +163,11 @@ class AutoInteractor(BasicInteractor):
             with open(self.config.config.goals_file_path) as file:
                 self.goals=file.readlines()
         else:
-            msg=self.context.user_interface.on_user_msg(Message(
+            msg=self.context.user_interface.on_msg_user(Message(
                 owner='system',
-                content=Message.Content(content='Please input your goals:')
+                content=Message.Content(text='Please input your goals:')
             ))
-            self.goals=msg.content.content.split('\n')
+            self.goals=msg.content.text.split('\n')
 
         instruction=self.instruction\
             .replace('{ai_name}', self.cerebrum.name)\
@@ -159,7 +181,6 @@ class AutoInteractor(BasicInteractor):
         self.instructions=[instruction]
 
     def setup_plugins(self):
-        super(AutoInteractor, self).setup_plugins()
         if not self.config.config.with_plugin_prompt:
             self.cerebrum.setup_plugins(self.plugin_manager)
 
@@ -171,7 +192,7 @@ class AutoInteractor(BasicInteractor):
             assets=[asset for asset in assets.values()],
             require_token_len=True,
             require_cost=True
-        ))
+        ), **self.llm_param)
         if response.input_token_len and response.input_token_len>self.summarize_token_len:
             msg_summary=self.summarizer.summarize(message_history[message_history_start:], assets[self.message_summary_key].content)
             assets[self.message_summary_key].content=msg_summary
@@ -179,3 +200,19 @@ class AutoInteractor(BasicInteractor):
             message_history_start=len(message_history)
             self.context.storage.put(self.message_history_start_key, message_history_start)
         return response, message_history_start
+
+    def set_llm_param(self, update: Dict, remove: List):
+        if update:
+            self.llm_param.update(update)
+        if remove:
+            for key in remove:
+                if key in self.llm_param:
+                    self.llm_param.pop(key)
+
+        return self.llm_param
+
+    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+        if command_name=='set_llm_param':
+            return ClassDict(param=self.set_llm_param(param.get('update'), param.get('remove')))
+        else:
+            raise ValueError(f'Unknown command: {command_name}. Only "set_llm_param" is acceptable.')

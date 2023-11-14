@@ -1,14 +1,14 @@
-group_id: org.concopilot.basic.interface
-artifact_id: cmd-user-interface
-version: 0.0.1
+group_id: org.concopilot.basic.message.manager
+artifact_id: basic-str-msg-manager
+version: 0.0.0
 
-type: user_interface
+type: message_manager
 as_plugin: false
 
 setup:
   pip:
     - concopilot>=0.0.1
-  package: concopilot.basic.interface.cmd
+  package: concopilot.basic.message.manager.strmanager
 
 url: https://github.com/concopilot/concopilot
 
@@ -22,10 +22,3 @@ licenses:
   -
     name: The Apache License, Version 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.txt
-
-config:
-  user_msg_prefix: ""
-  user_msg_suffix: ""
-  non_user_msg_prefix: ""
-  non_user_msg_suffix: ""
-  multiple_line_input: true

@@ -2,7 +2,7 @@
 
 <span style="font-size: 24px">**_Benefit everyone from AI & LLM_**</span>
 
-ConCopilot is designed to **CON**nect all **COPILOT**s by making "_functional parts_" **reusable** , **replaceable**, **portable**, and **flexible**, aiming to leverage all potential tasks by AI & LLM.
+ConCopilot is designed to **CON**nect all **COPILOT**s by making "_functional parts_" **reusable**, **replaceable**, **portable**, and **flexible**, aiming to leverage all potential tasks by AI & LLM.
 
 ConCopilot defines standards and common interfaces that would be helpful to make each part of a copilot **reusable**, **replaceable**, **portable**, and **flexible**.
 Any contributions that can improve these features are welcome.
@@ -127,9 +127,9 @@ pip install --upgrade concopilot
     # ...
 
     setup:
-    pip:
-      - <your_python_package>
-    package: <package_of_the__init__py>
+      pip:
+        - <your_python_package>
+      package: <package_of_the__init__py>
 
     #...
     ```
@@ -221,11 +221,11 @@ pip install --upgrade concopilot
     # ...
 
     interactor:
-    group_id: <your_interactor_group_id>
-    artifact_id: <your_interactor_artifact_id>
-    version: <your_interactor_version>
-    config:
-      # ...
+      group_id: <your_interactor_group_id>
+      artifact_id: <your_interactor_artifact_id>
+      version: <your_interactor_version>
+      config:
+        # ...
 
     # ...
     ```

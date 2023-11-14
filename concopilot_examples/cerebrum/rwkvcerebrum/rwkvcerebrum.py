@@ -8,6 +8,7 @@ from typing import Optional
 from concopilot.framework.plugin import PluginManager
 from concopilot.framework.cerebrum import InteractParameter, InteractResponse, AbstractCerebrum
 from concopilot.framework.resource.category.model import LLM
+from concopilot.framework.message import Message
 from concopilot.util.jsons import JsonEncoder
 
 
@@ -16,7 +17,8 @@ class RWKVCerebrum(AbstractCerebrum):
         super(RWKVCerebrum, self).__init__(config)
         self._model: LLM = None
         self.max_tokens: int = self.config.config.max_tokens
-        self._instruction_prompt: str = f'Make your response less than {self.max_tokens} tokens.'
+        self.msg_retrieval_mode: Message.RetrievalMode = Message.RetrievalMode[self.config.config.msg_retrieval_mode.upper()]
+        self._instruction_prompt: str = f'Make your response less than {self.max_tokens} tokens.' if self.max_tokens>0 else None
         self._plugin_prompt: str = None
 
     def setup_plugins(self, plugin_manager: PluginManager):
@@ -55,7 +57,10 @@ class RWKVCerebrum(AbstractCerebrum):
             if param.message_history is not None and len(param.message_history)>0:
                 prompt_list.append('Below are interaction messages between you, plugins, and the user so far:')
                 for msg in param.message_history:
-                    prompt_list.append(json.dumps(msg, cls=JsonEncoder, ensure_ascii=False))
+                    content=msg.retrieve(self.msg_retrieval_mode)
+                    if not isinstance(content, str):
+                        content=json.dumps(content, cls=JsonEncoder, ensure_ascii=False)
+                    prompt_list.append(content)
 
             if param.assets is not None and len(param.assets)>0:
                 prompt_list.append('Below are assets for your reference:\n\n'+json.dumps(param.assets, cls=JsonEncoder, ensure_ascii=False))
@@ -71,6 +76,6 @@ class RWKVCerebrum(AbstractCerebrum):
             'max_tokens': self.max_tokens,
             'require_token_len': param.require_token_len,
             'require_cost': param.require_cost
-        })
+        }, **kwargs)
 
         return InteractResponse(**reply)

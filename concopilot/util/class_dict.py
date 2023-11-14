@@ -44,6 +44,20 @@ class ClassDict(dict):
             setattr(result, copy.deepcopy(k, memodict), copy.deepcopy(v, memodict))
         return result
 
+    def update_nested(self, other: Mapping) -> None:
+        for k, v in other.items():
+            if isinstance(v, Mapping):
+                map=self.get(k)
+                if isinstance(map, Mapping):
+                    if not isinstance(map, ClassDict):
+                        map=ClassDict.convert(map)
+                    map.update_nested(v)
+                    self[k]=map
+                else:
+                    self[k]=ClassDict.convert(v)
+            else:
+                self[k]=v
+
     @staticmethod
     def convert(obj: Any) -> Any:
         if isinstance(obj, Mapping):

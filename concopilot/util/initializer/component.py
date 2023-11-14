@@ -5,7 +5,7 @@ import sys
 import subprocess
 import importlib
 
-from typing import Callable, Dict, Tuple, List, Sequence, Any
+from typing import Callable, Dict, Tuple, List, Sequence, Mapping, Any
 from ..config.tool import get_config_folder, read_config_file
 from ..class_dict import ClassDict
 from ...package import repo
@@ -27,13 +27,13 @@ def get_component_config_file_path(config: ClassDict) -> Tuple[str, str, str]:
 
 
 def get_component_constructor(config: ClassDict) -> Callable[[Dict, ...], Any]:
-    if not settings.skip_build and config.setup is not None and isinstance(config.setup, ClassDict) and config.setup.pip is not None and isinstance(config.setup.pip, List):
+    if not settings.skip_setup and config.setup is not None and isinstance(config.setup, ClassDict) and config.setup.pip is not None and isinstance(config.setup.pip, List):
         for package in config.setup.pip:
             if isinstance(package, str):
                 package=[package]
             elif not isinstance(package, Sequence):
                 raise ValueError('Unrecognized package: '+str(package))
-            subprocess.check_call([sys.executable, '-m', 'pip', 'install']+package)
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install']+package+settings.pip_params)
     return importlib.import_module(config.setup.package).constructor
 
 
@@ -45,7 +45,7 @@ def config_component_config_meta(component_config: ClassDict, config_folder: str
     if component_config.config is None:
         component_config.config=ClassDict()
     if parent_config is not None and parent_config.config is not None:
-        component_config.config.update(parent_config.config)
+        component_config.config.update_nested(parent_config.config)
     component_config._config_info=ClassDict(
         config_folder=config_folder,
         config_file=config_file
@@ -65,7 +65,8 @@ def get_component_config(config: ClassDict) -> ClassDict:
     return component_config
 
 
-def create_component(config: ClassDict, *args, **kwargs) -> Any:
+def create_component(config: Mapping, *args, **kwargs) -> Any:
+    config=ClassDict.convert(config)
     component_config=get_component_config(config)
     return construct_component(component_config, *args, **kwargs)
 

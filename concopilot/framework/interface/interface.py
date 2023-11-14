@@ -25,7 +25,7 @@ class UserInterface(AbstractPlugin):
         assert self.type=='user_interface'
 
     @abc.abstractmethod
-    def send_user_msg(self, msg: Message):
+    def send_msg_user(self, msg: Message):
         """
         Send a message to the user.
 
@@ -33,15 +33,15 @@ class UserInterface(AbstractPlugin):
         """
         pass
 
-    @abc.abstractmethod
-    def on_user_msg(self, msg: Message) -> Message:
+    def on_msg_user(self, msg: Message) -> Optional[Message]:
         """
         Send a message to the user and wait the user response.
 
         :param msg: the message to be sent
-        :return: the message return by the user
+        :return: the message return by the user, None if the user want to stop the pipeline
         """
-        pass
+        self.send_msg_user(msg)
+        return self.wait_user_msg()
 
     @abc.abstractmethod
     def has_user_msg(self) -> bool:
@@ -57,7 +57,16 @@ class UserInterface(AbstractPlugin):
         """
         Retrieve a new user message if any.
 
-        :return: the first message from the user, otherwise None
+        :return: the first message from the user, None if there is no user message currently
+        """
+        pass
+
+    @abc.abstractmethod
+    def wait_user_msg(self) -> Optional[Message]:
+        """
+        Wait for a new user message.
+
+        :return: the first message from the user, None if the user want to stop the pipeline
         """
         pass
 

@@ -1,13 +1,13 @@
 group_id: org.concopilot.example.rwkv
 artifact_id: rwkv-cerebrum
-version: 0.0.0
+version: 0.0.1
 
 type: cerebrum
 as_plugin: false
 
 setup:
   pip:
-    - concopilot_examples
+    - concopilot_examples>=0.0.1
   package: concopilot_examples.cerebrum.rwkvcerebrum
 
 url: https://github.com/concopilot/concopilot
@@ -29,6 +29,7 @@ config:
   role: AI-Assistant
   max_tokens: 1200
   instruction_file: instruction.md
+  msg_retrieval_mode: INNER
 
   resources:
     -
