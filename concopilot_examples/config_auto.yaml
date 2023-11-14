@@ -1,0 +1,114 @@
+group_id: org.concopilot.basic.copilot
+artifact_id: basic-copilot
+version: 0.0.0
+
+type: copilot
+as_plugin: false
+
+setup:
+  pip:
+    - concopilot>=0.0.1
+  package: concopilot.basic.copilot
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  resource_manager:
+    group_id: org.concopilot.basic.resource.manager
+    artifact_id: basic-resource-manager
+    version: 0.0.0
+    config:
+      resources:
+        -
+          group_id: org.concopilot.example.openai
+          artifact_id: openai-model
+          version: 0.0.0
+          config:
+            resource_type: model
+            # id: default
+            # name: null
+            api_type: <api_type>
+            api_base: <api_base>
+            api_version: <api_version>
+            api_key: <api_key>
+            engine: <engine>
+            model: <model>
+            # deployment_id: <deployment_id>
+            base_model_name: gpt-3.5-turbo
+            force_chat: true
+            num_retries: 10
+        -
+          group_id: org.concopilot.basic.resource.category
+          artifact_id: disk
+          version: 0.0.0
+
+  cerebrum:
+    group_id: org.concopilot.example.openai
+    artifact_id: openai-cerebrum
+    version: 0.0.1
+    config:
+      use_function_call: false
+      msg_retrieval_mode: ALL
+
+  interactor:
+    group_id: org.concopilot.example
+    artifact_id: auto-interactor
+    version: 0.0.1
+    config:
+      instruction_file: instruction_with_plugin_prompt.md
+      with_plugin_prompt: true
+
+  plugin_manager:
+    group_id: org.concopilot.basic.plugin.manager
+    artifact_id: basic-plugin-manager
+    version: 0.0.0
+    config:
+      plugin_prompt_generator:
+        group_id: org.concopilot.example
+        artifact_id: lm-plugin-prompt-gen
+        version: 0.0.0
+      plugins:
+        -
+          group_id: org.concopilot.example
+          artifact_id: ddg-search
+          version: 0.0.0
+        -
+          group_id: org.concopilot.basic.storage
+          artifact_id: disk-storage
+          version: 0.0.0
+        -
+          group_id: org.concopilot.example
+          artifact_id: summarizer
+          version: 0.0.0
+        -
+          group_id: org.concopilot.example
+          artifact_id: translator
+          version: 0.0.0
+
+  message_manager:
+    group_id: org.concopilot.basic.message.manager
+    artifact_id: basic-json-msg-manager
+    version: 0.0.0
+
+  storage:
+    group_id: org.concopilot.basic.storage
+    artifact_id: disk-storage
+    version: 0.0.0
+
+  user_interface:
+    group_id: org.concopilot.basic.interface
+    artifact_id: cmd-user-interface
+    version: 0.0.1
+    config:
+      user_msg_suffix: "Your message received"

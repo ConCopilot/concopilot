@@ -2,12 +2,12 @@
 
 import abc
 
-from typing import Dict, TypeVar
+from typing import Dict, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .manager import ResourceManager
 
 from ..plugin import AbstractPlugin
-# from .manager import ResourceManager
-
-ResourceManager=TypeVar('ResourceManager')
 
 
 class Resource(AbstractPlugin):
@@ -38,7 +38,7 @@ class Resource(AbstractPlugin):
         """
         return self._resource_type
 
-    def config_resources(self, resource_manager: ResourceManager):
+    def config_resources(self, resource_manager: 'ResourceManager'):
         pass
 
     @abc.abstractmethod

@@ -8,7 +8,6 @@ import os
 import datetime
 
 from . import encrypt
-from . import captcha
 from .error import PackageException, PackageHttpException, PackageServiceException
 from ..util.jsons import JsonEncoder
 
@@ -61,12 +60,11 @@ def request_public_key(session: requests.Session, url, captcha):
         raise PackageHttpException(f'request_public_key encounter HTTP error with code {response.status_code}.', response.status_code)
 
 
-def captcha_url(base_url):
-    return f'{base_url}/api/captcha?d={int(datetime.datetime.now().timestamp()*1000)}'
-
-
 def login(session: requests.Session, base_url, name, pwd):
-    captcha_client=captcha.CaptchaClient(request_fn=captcha.get_request_fn(session=session, captcha_url=captcha_url(base_url)))
+    from . import captcha
+
+    captcha_url=f'{base_url}/api/captcha?d={int(datetime.datetime.now().timestamp()*1000)}'
+    captcha_client=captcha.CaptchaClient(request_fn=captcha.get_request_fn(session=session, captcha_url=captcha_url))
     captcha_client.open()
     public_key=request_public_key(session=session, url=base_url+'/api/key', captcha=captcha_client.captcha_text)
     key=encrypt.scrypt(pwd.encode('utf8'))

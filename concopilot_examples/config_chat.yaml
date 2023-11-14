@@ -7,7 +7,7 @@ as_plugin: false
 
 setup:
   pip:
-    - concopilot
+    - concopilot>=0.0.1
   package: concopilot.basic.copilot
 
 url: https://github.com/concopilot/concopilot
@@ -56,17 +56,14 @@ config:
   cerebrum:
     group_id: org.concopilot.example.openai
     artifact_id: openai-cerebrum
-    version: 0.0.0
+    version: 0.0.1
     config:
       use_function_call: false
 
   interactor:
     group_id: org.concopilot.example
-    artifact_id: auto-interactor
+    artifact_id: chat-interactor
     version: 0.0.0
-    config:
-      instruction_file: instruction_with_plugin_prompt.md
-      with_plugin_prompt: true
 
   plugin_manager:
     group_id: org.concopilot.basic.plugin.manager
@@ -77,27 +74,11 @@ config:
         group_id: org.concopilot.example
         artifact_id: lm-plugin-prompt-gen
         version: 0.0.0
-      plugins:
-        -
-          group_id: org.concopilot.example
-          artifact_id: ddg-search
-          version: 0.0.0
-        -
-          group_id: org.concopilot.basic.storage
-          artifact_id: disk-storage
-          version: 0.0.0
-        -
-          group_id: org.concopilot.example
-          artifact_id: summarizer
-          version: 0.0.0
-        -
-          group_id: org.concopilot.example
-          artifact_id: translator
-          version: 0.0.0
+      plugins: []
 
   message_manager:
     group_id: org.concopilot.basic.message.manager
-    artifact_id: basic-json-msg-manager
+    artifact_id: basic-str-msg-manager
     version: 0.0.0
 
   storage:
@@ -108,4 +89,8 @@ config:
   user_interface:
     group_id: org.concopilot.basic.interface
     artifact_id: cmd-user-interface
-    version: 0.0.0
+    version: 0.0.1
+    config:
+      user_msg_prefix: "USER:"
+      non_user_msg_prefix: "ASSISTANT:"
+      multiple_line_input: false

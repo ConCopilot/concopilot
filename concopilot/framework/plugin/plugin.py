@@ -4,17 +4,14 @@ import abc
 import uuid
 import os
 
-from typing import Dict, List, Union, Optional, TypeVar
+from typing import Dict, List, Union, Optional, TYPE_CHECKING
 
-# from ..resource import Resource, ResourceManager
+if TYPE_CHECKING:
+    from ..resource import Resource, ResourceManager
+    from ...util.context import Context
 from ..message import Message
-# from ...util.context import Context
 from ...util import ClassDict
 from ...package.config import Settings
-
-Resource=TypeVar('Resource')
-ResourceManager=TypeVar('ResourceManager')
-Context=TypeVar('Context')
 
 
 settings=Settings()
@@ -41,7 +38,7 @@ class Plugin(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def config_resources(self, resource_manager: ResourceManager):
+    def config_resources(self, resource_manager: 'ResourceManager'):
         """
         Configure the plugin resources from the `resource_manager`.
 
@@ -52,7 +49,7 @@ class Plugin(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def config_context(self, context: Context):
+    def config_context(self, context: 'Context'):
         """
         Configure the context for this plugin, and for all components under this plugin if necessary.
 
@@ -144,7 +141,7 @@ class Plugin(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def resources(self) -> List[Resource]:
+    def resources(self) -> List['Resource']:
         """
         :return: the plugin resource list
         """
@@ -152,7 +149,7 @@ class Plugin(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def resource_id_map(self) -> Dict[Union[uuid.UUID, str], Resource]:
+    def resource_id_map(self) -> Dict[Union[uuid.UUID, str], 'Resource']:
         """
         :return: the plugin resource map arranged by the resource id
         """
@@ -160,7 +157,7 @@ class Plugin(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def resource_name_map(self) -> Dict[str, Resource]:
+    def resource_name_map(self) -> Dict[str, 'Resource']:
         """
         :return: the plugin resource map arranged by the resource name
         """
@@ -168,14 +165,14 @@ class Plugin(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def resource_type_map(self) -> Dict[str, List[Resource]]:
+    def resource_type_map(self) -> Dict[str, List['Resource']]:
         """
         :return: the plugin resource map arranged by the resource type
         """
         pass
 
     @abc.abstractmethod
-    def get_resource(self, *, resource_id: str = None, resource_name: str = None, resource_type: str = None) -> Optional[Resource]:
+    def get_resource(self, *, resource_id: str = None, resource_name: str = None, resource_type: str = None) -> Optional['Resource']:
         """
         Retrieve a resource with its resource id, resource name, and resource_type.
 
@@ -192,7 +189,7 @@ class Plugin(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def context(self) -> Context:
+    def context(self) -> 'Context':
         """
         :return: the plugin context
         """
@@ -320,7 +317,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
                 with open(self.config.info.prompt_file_path) as file:
                     self.prompt=file.read()
 
-    def config_resources(self, resource_manager: ResourceManager):
+    def config_resources(self, resource_manager: 'ResourceManager'):
         self._resources=[]
         if resource_manager is None:
             raise ValueError('No resource_manager passed.')
@@ -331,7 +328,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
             for resource_config in self.config.config.resources:
                 self._config_one_resource(resource_config, resource_manager)
 
-    def _config_one_resource(self, resource_config, resource_manager: ResourceManager):
+    def _config_one_resource(self, resource_config, resource_manager: 'ResourceManager'):
         resource=resource_manager.get_resource(resource_id=resource_config.id, resource_name=resource_config.name, resource_type=resource_config.type)
         if resource is None:
             raise ValueError(f'No such resource found. resource_id={resource_config.id}, resource_type={resource_config.type}')
@@ -357,7 +354,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
             self.resource_type_map[resource.resource_type]=[]
         self.resource_type_map[resource.resource_type].append(resource)
 
-    def config_context(self, context: Context):
+    def config_context(self, context: 'Context'):
         self._context=context
 
     def config_file_path(self, file_name: str = None) -> str:
@@ -396,22 +393,22 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
         return self._as_plugin
 
     @property
-    def resources(self) -> List[Resource]:
+    def resources(self) -> List['Resource']:
         return self._resources
 
     @property
-    def resource_id_map(self) -> Dict[Union[uuid.UUID, str], Resource]:
+    def resource_id_map(self) -> Dict[Union[uuid.UUID, str], 'Resource']:
         return self._resource_id_map
 
     @property
-    def resource_name_map(self) -> Dict[str, Resource]:
+    def resource_name_map(self) -> Dict[str, 'Resource']:
         return self._resource_name_map
 
     @property
-    def resource_type_map(self) -> Dict[str, List[Resource]]:
+    def resource_type_map(self) -> Dict[str, List['Resource']]:
         return self._resource_type_map
 
-    def get_resource(self, *, resource_id: Union[uuid.UUID, str] = None, resource_name: str = None, resource_type: str = None) -> Optional[Resource]:
+    def get_resource(self, *, resource_id: Union[uuid.UUID, str] = None, resource_name: str = None, resource_type: str = None) -> Optional['Resource']:
         if resource_id and str(resource_id).lower()!='default':
             resource=self.resource_id_map.get(resource_id)
             if resource:
@@ -431,7 +428,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
             return None
 
     @property
-    def context(self) -> Context:
+    def context(self) -> 'Context':
         return self._context
 
     def send_msg(self, msg: Message):
@@ -456,7 +453,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
             receiver=msg.sender,
             content=Message.Content(
                 command=msg.content.command,
-                content=self.command(msg.content.command, msg.content.param)
+                data=self.command(msg.content.command, msg.content.param)
             ),
             time=settings.current_time()
         )

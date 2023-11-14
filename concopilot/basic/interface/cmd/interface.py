@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import json
-
 from typing import Dict, Optional
 
 from ....framework.interface import UserInterface
 from ....framework.message import Message
-from ....util.jsons import JsonEncoder
 from ....package.config import Settings
 
 
@@ -16,23 +13,21 @@ settings=Settings()
 class CmdUserInterface(UserInterface):
     def __init__(self, config: Dict):
         super(CmdUserInterface, self).__init__(config)
-        self.default_request_prompt: str = self.config.config.default_request_prompt if self.config.config.default_request_prompt else 'Waiting for your input:'
-        self.default_received_prompt: str = self.config.config.default_received_prompt if self.config.config.default_received_prompt else 'Your message received.'
-        self.multiple_line_input: str=self.config.config.multiple_line_input
+        self.user_msg_prefix: str = self.config.config.user_msg_prefix if self.config.config.user_msg_prefix else ''
+        self.user_msg_suffix: str = self.config.config.user_msg_suffix if self.config.config.user_msg_suffix else ''
+        self.non_user_msg_prefix: str = self.config.config.non_user_msg_prefix if self.config.config.non_user_msg_prefix else ''
+        self.non_user_msg_suffix: str = self.config.config.non_user_msg_suffix if self.config.config.non_user_msg_suffix else ''
+        self.multiple_line_input: bool = self.config.config.multiple_line_input
 
-    def send_user_msg(self, msg: Message):
-        print(json.dumps(msg, cls=JsonEncoder, ensure_ascii=False, indent=4))
+        self.last_sender=None
+        self.last_receiver=None
 
-    def on_user_msg(self, msg: Message) -> Message:
-        print(msg.content.content if msg.content else self.default_request_prompt)
-        content=self._input()
-        print(self.default_received_prompt)
-        return Message(
-            sender=msg.receiver,
-            receiver=msg.sender,
-            content=Message.Content(content=content),
-            time=settings.current_time()
-        )
+    def send_msg_user(self, msg: Message):
+        print(self.non_user_msg_prefix)
+        print(msg.content.text if msg.content else '')
+        print(self.non_user_msg_suffix)
+        self.last_sender=msg.sender
+        self.last_receiver=msg.receiver
 
     def has_user_msg(self) -> bool:
         return False
@@ -40,11 +35,23 @@ class CmdUserInterface(UserInterface):
     def get_user_msg(self) -> Optional[Message]:
         return None
 
+    def wait_user_msg(self) -> Optional[Message]:
+        print(self.user_msg_prefix)
+        text=self._input()
+        print(self.user_msg_suffix)
+        return Message(
+            sender=self.last_receiver,
+            receiver=self.last_sender,
+            content=Message.Content(text=text),
+            time=settings.current_time()
+        )
+
     def _input(self) -> str:
-        content=[]
+        texts=[]
         while True:
             line=input()
-            if not self.multiple_line_input or line=='':
+            if line:
+                texts.append(line)
+            if not self.multiple_line_input or not line:
                 break
-            content.append(line)
-        return '\n'.join(content)
+        return '\n'.join(texts)

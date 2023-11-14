@@ -7,7 +7,7 @@ from .. import ClassDict
 
 
 class Identity(ClassDict):
-    def __init__(self, role: str = None, id: Union[uuid.UUID, str] = None, name: str = None, command: str = None, **kwargs):
+    def __init__(self, *, role: str = None, id: Union[uuid.UUID, str] = None, name: str = None, **kwargs):
         super(Identity, self).__init__(**kwargs)
         if role is not None:
             self.role: str = role

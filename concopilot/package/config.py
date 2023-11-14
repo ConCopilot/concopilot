@@ -82,11 +82,12 @@ class Settings(Singleton):
                     raise ValueError('Unrecognized release repo')
             return Settings.Repo(url, snapshot, release)
 
-    def __init__(self, local_repo_path: str = None, repos: List[Repo] = None, working_directory: str = '.', skip_build: bool = False, current_time: Callable[[], str] = None):
+    def __init__(self, local_repo_path: str = None, repos: List[Repo] = None, working_directory: str = '.', skip_setup: bool = False, pip_params: List = None, current_time: Callable[[], str] = None):
         self.local_repo_path: str = check_local_repo_path(local_repo_path=local_repo_path)
         self.repos: List[Settings.Repo] = check_repos(repos=repos)
-        self.working_directory: str = working_directory
-        self.skip_build: bool = skip_build
+        self.working_directory: str = working_directory if working_directory else '.'
+        self.skip_setup: bool = skip_setup
+        self.pip_params: List = pip_params if pip_params is not None else []
         self._current_time: Callable[[], str] = current_time if current_time else curr_time
 
         self.network_session: Optional[requests.Session] = None
@@ -120,7 +121,7 @@ def check_repos(repos: List[Settings.Repo] = None):
     return repos
 
 
-def load_settings(settings_path: str = None, working_directory: str = None, skip_build: str = None) -> Settings:
+def load_settings(settings_path: str = None, working_directory: str = None, skip_setup: str = None, pip_params: str = None) -> Settings:
     settings=Settings()
 
     settings_info=None
@@ -137,7 +138,10 @@ def load_settings(settings_path: str = None, working_directory: str = None, skip
 
     if working_directory is not None:
         settings.working_directory=working_directory
-    if skip_build is not None:
-        settings.skip_build=skip_build
+    if skip_setup is not None:
+        settings.skip_setup=skip_setup
+    if pip_params:
+        pip_params=[param for param in pip_params.split(' ') if param]
+        settings.pip_params=pip_params
 
     return settings

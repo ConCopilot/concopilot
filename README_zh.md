@@ -127,9 +127,9 @@ pip install --upgrade concopilot
     # ...
 
     setup:
-    pip:
-      - <your_python_package>
-    package: <package_of_the__init__py>
+      pip:
+        - <your_python_package>
+      package: <package_of_the__init__py>
 
     #...
     ```
@@ -221,11 +221,11 @@ pip install --upgrade concopilot
     # ...
 
     interactor:
-    group_id: <your_interactor_group_id>
-    artifact_id: <your_interactor_artifact_id>
-    version: <your_interactor_version>
-    config:
-      # ...
+      group_id: <your_interactor_group_id>
+      artifact_id: <your_interactor_artifact_id>
+      version: <your_interactor_version>
+      config:
+        # ...
 
     # ...
     ```
