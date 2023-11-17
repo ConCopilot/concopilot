@@ -1,5 +1,5 @@
-group_id: org.concopilot.basic.copilot
-artifact_id: basic-copilot
+group_id: org.concopilot.example.copilot
+artifact_id: basic-auto-copilot
 version: 0.0.0
 
 type: copilot
@@ -59,11 +59,15 @@ config:
     version: 0.0.1
     config:
       use_function_call: false
+      msg_retrieval_mode: ALL
 
   interactor:
     group_id: org.concopilot.example
-    artifact_id: chat-interactor
-    version: 0.0.0
+    artifact_id: auto-interactor
+    version: 0.0.1
+    config:
+      instruction_file: instruction_with_plugin_prompt.md
+      with_plugin_prompt: true
 
   plugin_manager:
     group_id: org.concopilot.basic.plugin.manager
@@ -74,11 +78,27 @@ config:
         group_id: org.concopilot.example
         artifact_id: lm-plugin-prompt-gen
         version: 0.0.0
-      plugins: []
+      plugins:
+        -
+          group_id: org.concopilot.example
+          artifact_id: ddg-search
+          version: 0.0.0
+        -
+          group_id: org.concopilot.basic.storage
+          artifact_id: disk-storage
+          version: 0.0.0
+        -
+          group_id: org.concopilot.example
+          artifact_id: summarizer
+          version: 0.0.0
+        -
+          group_id: org.concopilot.example
+          artifact_id: translator
+          version: 0.0.0
 
   message_manager:
     group_id: org.concopilot.basic.message.manager
-    artifact_id: basic-str-msg-manager
+    artifact_id: basic-json-msg-manager
     version: 0.0.0
 
   storage:
@@ -91,6 +111,4 @@ config:
     artifact_id: cmd-user-interface
     version: 0.0.1
     config:
-      user_msg_prefix: "USER:"
-      non_user_msg_prefix: "ASSISTANT:"
-      multiple_line_input: false
+      user_msg_suffix: "Your message received"
