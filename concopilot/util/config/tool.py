@@ -18,5 +18,5 @@ def get_config_folder(root: str, group_id: str, artifact_id: str, version: str, 
 
 
 def read_config_file(config_file_path) -> ClassDict:
-    with open(config_file_path) as file:
+    with open(config_file_path, 'r', encoding='utf8') as file:
         return ClassDict.convert(yaml.safe_load(file))

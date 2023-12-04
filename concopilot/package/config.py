@@ -127,7 +127,7 @@ def load_settings(settings_path: str = None, working_directory: str = None, skip
     settings_info=None
     settings_path=settings_path if settings_path is not None else env.default_settings_path
     if os.path.isfile(settings_path):
-        with open(settings_path) as file:
+        with open(settings_path, 'r', encoding='utf8') as file:
             settings_info=yaml.safe_load(file)
 
     if settings_info is not None:

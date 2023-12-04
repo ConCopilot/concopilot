@@ -107,9 +107,9 @@ class BasicResourceManager(ResourceManager):
         self.resource_type_map[resource.resource_type].append(resource)
 
     def initialize(self):
-        for resource in self.resource_id_map.values():
+        for resource in self.resources:
             resource.initialize()
 
     def finalize(self):
-        for resource in self.resource_id_map.values():
+        for resource in self.resources[::-1]:
             resource.finalize()

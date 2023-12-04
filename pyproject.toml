@@ -1,6 +1,6 @@
 [project]
 name="concopilot"
-version="0.0.1"
+version="0.0.2"
 authors=[
     {name="ZHONG Weikun", email="zhong.weikun@live.com"}
 ]
@@ -32,4 +32,3 @@ conpack="concopilot.package.conpack:execute"
 [tool.setuptools.packages.find]
 where=["."]
 include=["concopilot*"]
-exclude=["concopilot_examples*"]

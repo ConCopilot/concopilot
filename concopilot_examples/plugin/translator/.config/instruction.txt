@@ -1,9 +1,0 @@
-Your task is to translate the below content into {target_language}:
-
-"""
-{content}
-"""
-
-Make the translation less than {max_tokens} tokens.
-
-Begin translate:
