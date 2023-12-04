@@ -59,7 +59,8 @@ commands:
         required: true
         example: memory/data/need_to_be_deleted.txt
     response:
-      - name: status
+      -
+        name: status
         type: bool
         description: if the deleting operation success or not.
         optional: false

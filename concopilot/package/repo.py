@@ -197,6 +197,8 @@ def retrieve_config(group_id: str, artifact_id: str, version: str, config_folder
         default_exists, default_config_file, default_config_file_path=check_config_file_existence(config_folder=config_folder, config_file=None)
         if not default_exists:
             raise PackageException('Cannot copy config file from local repository to working folder.')
+        if valid_config_file:
+            exists, config_file, config_file_path=check_config_file_existence(config_folder=config_folder, config_file=config_file)
     if valid_config_file:
         if not exists:
             logger.info(f'Copy default config file to {config_file_path}')
