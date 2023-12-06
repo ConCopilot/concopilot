@@ -45,9 +45,9 @@ AutoGPT其中一种应用，
 
 请注意，ConCopilot**不**对任何恶意或滥用组件负责。
 
-## 例子
+## 示例
 
-在[这里](https://github.com/ConCopilot/concopilot/tree/main/concopilot_examples)查看范例代码和配置。
+在[这里](https://github.com/ConCopilot/concopilot-examples)查看范例代码和配置。
 
 ### 安装
 
@@ -73,7 +73,7 @@ pip install --upgrade concopilot
 
 ##### 快速范例
 
-1. 下载这个简化版的类Auto-GPT[副官范例](https://github.com/ConCopilot/concopilot/blob/main/concopilot_examples/config.yaml)。
+1. 下载这个简化版的类Auto-GPT[副官范例](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/auto/.config/config.yaml)。
 2. 执行以下命令运行:
 
     ```shell
