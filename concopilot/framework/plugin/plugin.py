@@ -4,12 +4,13 @@ import abc
 import uuid
 import os
 
-from typing import Dict, List, Union, Optional, TYPE_CHECKING
+from typing import Dict, List, Union, Optional, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..resource import Resource, ResourceManager
     from ...util.context import Context
 from ..message import Message
+from ...util.identity import Identity
 from ...util import ClassDict
 from ...package.config import Settings
 
@@ -109,7 +110,7 @@ class Plugin(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def id(self) -> Union[uuid.UUID, str]:
+    def id(self) -> Union[uuid.UUID, str, int]:
         """
         :return: the plugin id
         """
@@ -149,7 +150,7 @@ class Plugin(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def resource_id_map(self) -> Dict[Union[uuid.UUID, str], 'Resource']:
+    def resource_id_map(self) -> Dict[Union[uuid.UUID, str, int], 'Resource']:
         """
         :return: the plugin resource map arranged by the resource id
         """
@@ -196,16 +197,16 @@ class Plugin(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         """
         The raw (without message encapsulation) plugin command execution interface.
 
         Implement this method if the component is supposed to be a real full functional plugin.
 
         :param command_name: the command name to call
-        :param param: the command parameters
+        :param param: the command parameter
         :param kwargs: reserved, not recommend to use
-        :return: the command execution result
+        :return: the command response
         """
         pass
 
@@ -299,7 +300,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
         self._as_plugin=self.config.as_plugin
 
         self._resources: List[Resource] = []
-        self._resource_id_map: Dict[Union[uuid.UUID, str], Resource] = {}
+        self._resource_id_map: Dict[Union[uuid.UUID, str, int], Resource] = {}
         self._resource_name_map: Dict[str, Resource] = {}
         self._resource_type_map: Dict[str, List[Resource]] = {}
 
@@ -311,10 +312,10 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
             if self.config.info.prompt is not None and isinstance(self.config.info.prompt, str):
                 self.prompt=self.config.info.prompt
             elif self.config.info.prompt_file_name is not None and isinstance(self.config.info.prompt_file_name, str):
-                with open(self.config_file_path(self.config.info.prompt_file_name)) as file:
+                with open(self.config_file_path(self.config.info.prompt_file_name), encoding='utf8') as file:
                     self.prompt=file.read()
             elif self.config.info.prompt_file_path is not None and isinstance(self.config.info.prompt_file_path, str):
-                with open(self.config.info.prompt_file_path) as file:
+                with open(self.config.info.prompt_file_path, encoding='utf8') as file:
                     self.prompt=file.read()
 
     def config_resources(self, resource_manager: 'ResourceManager'):
@@ -377,7 +378,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
         return self._version
 
     @property
-    def id(self) -> Union[uuid.UUID, str]:
+    def id(self) -> Union[uuid.UUID, str, int]:
         return self._id
 
     @property
@@ -397,7 +398,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
         return self._resources
 
     @property
-    def resource_id_map(self) -> Dict[Union[uuid.UUID, str], 'Resource']:
+    def resource_id_map(self) -> Dict[Union[uuid.UUID, str, int], 'Resource']:
         return self._resource_id_map
 
     @property
@@ -408,7 +409,7 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
     def resource_type_map(self) -> Dict[str, List['Resource']]:
         return self._resource_type_map
 
-    def get_resource(self, *, resource_id: Union[uuid.UUID, str] = None, resource_name: str = None, resource_type: str = None) -> Optional['Resource']:
+    def get_resource(self, *, resource_id: Union[uuid.UUID, str, int] = None, resource_name: str = None, resource_type: str = None) -> Optional['Resource']:
         if resource_id and str(resource_id).lower()!='default':
             resource=self.resource_id_map.get(resource_id)
             if resource:
@@ -437,23 +438,27 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
     def on_msg(self, msg: Message) -> Message:
         if not msg.receiver:
             raise ValueError('No message receiver!')
-        if msg.receiver.role!='plugin':
-            raise ValueError('Not a message to plugin!')
+        if msg.receiver.role!='plugin' and msg.receiver.role!=self.type:
+            if self.type=='plugin':
+                raise ValueError(f'Not a message to plugin! msg.receiver.role is `{msg.receiver.role}`, must be "plugin".')
+            else:
+                raise ValueError(f'Not a message to plugin or plugin type! The `msg.receiver.role` is "{msg.receiver.role}", must be "plugin" or "{self.type}".')
         if self.id!=msg.receiver.id and self.name!=msg.receiver.name:
-            raise ValueError(f'Incorrect message receiver! Message expect (id={msg.receiver.id} name={msg.receiver.name}), plugin is (id={self.id} name={self.name})')
+            raise ValueError(f'Incorrect message receiver! Message expect (id="{msg.receiver.id}" name="{msg.receiver.name}"), plugin is (id="{self.id}" name="{self.name}").')
+        if msg.content_type!='command':
+            raise ValueError('Not a command message! The `msg.content_type` must be "command".')
         if not msg.content:
             raise ValueError('No message content!')
         if not msg.content.command:
-            raise ValueError('Message content contains NO plugin command!')
+            raise ValueError('Message content contains NO plugin command! `msg.content.command` must be set.')
 
-        msg.receiver.id=self.id
-        msg.receiver.name=self.name
         msg=Message(
-            sender=msg.receiver,
+            sender=Identity(role=msg.receiver.role, id=self.id, name=self.name),
             receiver=msg.sender,
-            content=Message.Content(
+            content_type='command',
+            content=Message.Command(
                 command=msg.content.command,
-                data=self.command(msg.content.command, msg.content.param)
+                response=self.command(msg.content.command, msg.content.param if msg.content.param else ClassDict())
             ),
             time=settings.current_time()
         )

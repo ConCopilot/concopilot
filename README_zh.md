@@ -71,16 +71,59 @@ pip install --upgrade concopilot
             # --working-directory=<your_working_directory>
     ```
 
-##### 快速范例
+##### 快速样例
 
-1. 下载这个简化版的类Auto-GPT[副官范例](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/auto/.config/config.yaml)。
-2. 执行以下命令运行:
+您可能希望先下载对应的配置文件并修改其中一些信息，如API密钥、服务端口等。
+首先运行`conpack build`，然后在".runtime"目录中寻找对应组件的`config.yaml`文件。
+其目录路径由组件的`group_id`、`artifact_id`、`version`构成。
+
+1. 简单聊天:
 
     ```shell
     conpack run
-            --config-file=<your_downloaded_file_path>
+            --group-id=org.concopilot.example.copilot
+            --artifact-id=basic-chat-copilot
+            --version=<version>
+            # --config-file=<config.yaml|config_glm.yaml|config_rwkv.yaml|config_web.yaml|config_web_glm.yaml|config_web_rwkv.yaml>
             # --working-directory=<your_working_directory>
+            # --skip-setup
     ```
+
+    [latest version](https://concopilot.org/component/org.concopilot.example.copilot/basic-chat-copilot)
+
+    [component source](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/chat)
+
+2. 带工具的聊天:
+
+    ```shell
+    conpack run
+            --group-id=org.concopilot.example.copilot
+            --artifact-id=basic-chat-with-tool-copilot
+            --version=<version>
+            # --config-file=<config.yaml|config_ocr.yaml|config_ocr_glm.yaml>
+            # --working-directory=<your_working_directory>
+            # --skip-setup
+    ```
+
+    [latest version](https://concopilot.org/component/org.concopilot.example.copilot/basic-chat-with-tool-copilot)
+
+    [component source](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/chatwithtool)
+
+3. 简化版的类Auto-GPT:
+
+    ```shell
+    conpack run
+            --group-id=org.concopilot.example.copilot
+            --artifact-id=basic-auto-copilot
+            --version=<version>
+            # --config-file=<config.yaml|config_web.yaml>
+            # --working-directory=<your_working_directory>
+            # --skip-setup
+    ```
+
+    [latest version](https://concopilot.org/component/org.concopilot.example.copilot/basic-auto-copilot)
+
+    [component source](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/auto)
 
 ### 对开发者
 
@@ -100,7 +143,7 @@ pip install --upgrade concopilot
 
 2. 使你的插件继承自`AbstractPlugin`类，并实现以下方法
     - `__init__`方法，仅接收一个包含其所有配置信息的`dict`参数。
-    - `command`方法，接收一个`string`类型的命令名参数（`command_name`），一个`dict`类型的命令参数参数（`param`），并返回一个`dict`类型的命令执行结果。
+    - `command`方法，接收一个`string`类型的命令名参数（`command_name`），一个命令参数参数（`param`，推荐使用`dict`类型），并返回命令执行结果（同样推荐使用`dict`类型）。
 
     ```python
     from concopilot.framework.plugin import AbstractPlugin
@@ -111,7 +154,7 @@ pip install --upgrade concopilot
             super(YourPlugin, self).__init__(config)
             # ...
 
-        def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+        def command(self, command_name: str, param: Any, **kwargs) -> Any:
             # ...
     ```
 

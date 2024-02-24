@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from ..util.error import ConcopilotError
+from ..util.error import ConCopilotError
 
 
-class PackageException(ConcopilotError):
+class PackageException(ConCopilotError):
     def __init__(self, msg: str):
         super(PackageException, self).__init__(msg)
 

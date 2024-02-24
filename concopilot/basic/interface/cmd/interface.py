@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import json
+
 from typing import Dict, Optional
 
 from ....framework.interface import UserInterface
 from ....framework.message import Message
 from ....package.config import Settings
+from ....util.jsons import JsonEncoder
 
 
 settings=Settings()
@@ -24,10 +27,20 @@ class CmdUserInterface(UserInterface):
 
     def send_msg_user(self, msg: Message):
         print(self.non_user_msg_prefix)
-        print(msg.content.text if msg.content else '')
+        if msg.content:
+            if isinstance(msg.content, str):
+                print(msg.content)
+            else:
+                print(json.dumps(msg, cls=JsonEncoder, ensure_ascii=False, indent=4))
+        else:
+            print('')
         print(self.non_user_msg_suffix)
         self.last_sender=msg.sender
         self.last_receiver=msg.receiver
+
+    def on_msg_user(self, msg: Message) -> Optional[Message]:
+        self.send_msg_user(msg)
+        return self.wait_user_msg()
 
     def has_user_msg(self) -> bool:
         return False
@@ -37,12 +50,13 @@ class CmdUserInterface(UserInterface):
 
     def wait_user_msg(self) -> Optional[Message]:
         print(self.user_msg_prefix)
-        text=self._input()
+        content=self._input()
         print(self.user_msg_suffix)
         return Message(
             sender=self.last_receiver,
             receiver=self.last_sender,
-            content=Message.Content(text=text),
+            content_type='text/plain',
+            content=content,
             time=settings.current_time()
         )
 

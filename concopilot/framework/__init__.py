@@ -4,5 +4,5 @@ from .copilot import Copilot, BasicCopilot
 
 __all__=[
     'Copilot',
-    'BasicCopilot',
+    'BasicCopilot'
 ]

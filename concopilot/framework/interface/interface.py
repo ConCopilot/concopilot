@@ -2,7 +2,7 @@
 
 import abc
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Any
 
 from ..plugin import AbstractPlugin
 from ..message import Message
@@ -33,15 +33,18 @@ class UserInterface(AbstractPlugin):
         """
         pass
 
+    @abc.abstractmethod
     def on_msg_user(self, msg: Message) -> Optional[Message]:
         """
         Send a message to the user and wait the user response.
 
+        This method must return the exact response to the input `msg`.
+        Implementations may need to take special mechanism to guarantee this.
+
         :param msg: the message to be sent
         :return: the message return by the user, None if the user want to stop the pipeline
         """
-        self.send_msg_user(msg)
-        return self.wait_user_msg()
+        pass
 
     @abc.abstractmethod
     def has_user_msg(self) -> bool:
@@ -70,5 +73,5 @@ class UserInterface(AbstractPlugin):
         """
         pass
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}

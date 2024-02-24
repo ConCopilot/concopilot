@@ -3,7 +3,7 @@
 import abc
 import uuid
 
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Any
 
 from ..resource import Resource
 from ..plugin import AbstractPlugin
@@ -61,14 +61,14 @@ class ResourceManager(AbstractPlugin):
         """
         pass
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}
 
 
 class BasicResourceManager(ResourceManager):
     def __init__(self, config: Dict):
         super(BasicResourceManager, self).__init__(config)
-        self._resource_id_map: Dict[Union[uuid.UUID, str], Resource] = {}
+        self._resource_id_map: Dict[Union[uuid.UUID, str, int], Resource] = {}
         self._resource_name_map: Dict[str, Resource] = {}
         self._resource_type_map: Dict[str, List[Resource]] = {}
         if self.config.resources is not None:

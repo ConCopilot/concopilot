@@ -2,7 +2,7 @@
 
 import abc
 
-from typing import Dict, List
+from typing import Dict, Mapping, List, Any
 
 from ..plugin import AbstractPlugin, PluginManager
 from ..resource.category import LLM
@@ -12,7 +12,18 @@ from ...util import ClassDict
 
 
 class InteractParameter(ClassDict):
-    def __init__(self, *, instructions: List[str] = None, command: str = None, message_history: List[Message] = None, assets: List[Asset] = None, content: str = None, require_token_len: bool = None, require_cost: bool = None, **kwargs):
+    def __init__(
+        self,
+        *,
+        instructions: List[str] = None,
+        command: str = None,
+        message_history: List[Message] = None,
+        assets: List[Asset] = None,
+        content: str = None,
+        require_token_len: bool = None,
+        require_cost: bool = None,
+        **kwargs
+    ):
         super(InteractParameter, self).__init__(**kwargs)
         self.instructions: List[str] = instructions
         self.command: str = command
@@ -26,13 +37,29 @@ class InteractParameter(ClassDict):
 
 class InteractResponse(ClassDict):
     class PluginCall(ClassDict):
-        def __init__(self, *, plugin_name: str, command: str, param: Dict, **kwargs):
+        def __init__(
+            self,
+            *,
+            plugin_name: str,
+            command: str,
+            param: Any,
+            **kwargs
+        ):
             super(InteractResponse.PluginCall, self).__init__(**kwargs)
             self.plugin_name: str = plugin_name
             self.command: str = command
-            self.param: ClassDict = ClassDict.convert(param)
+            self.param: Any = ClassDict.convert(param) if isinstance(param, Mapping) else param
 
-    def __init__(self, *, content: str = None, plugin_call: PluginCall = None, input_token_len: int = None, output_token_len: int = None, cost: float = None, **kwargs):
+    def __init__(
+        self,
+        *,
+        content: str = None,
+        plugin_call: PluginCall = None,
+        input_token_len: int = None,
+        output_token_len: int = None,
+        cost: float = None,
+        **kwargs
+    ):
         super(InteractResponse, self).__init__(**kwargs)
         self.content: str = content
         self.plugin_call: InteractResponse.PluginCall = plugin_call
@@ -76,7 +103,7 @@ class Cerebrum(AbstractPlugin):
         """
         This method will be called by the Interactor to expose the plugin_manager (and all plugins in it) to the cerebrum.
 
-        Special work can be done here with the plugins, such as config OpenAI function call from plugins, if necessary.
+        Special work can be done here with the plugins, such as config function call from plugins, if necessary.
 
         :param plugin_manager: the plugin manager
         """
@@ -108,7 +135,7 @@ class Cerebrum(AbstractPlugin):
         """
         pass
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}
 
 

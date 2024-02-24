@@ -1,6 +1,6 @@
 group_id: org.concopilot.basic.storage
 artifact_id: disk-storage
-version: 0.0.0
+version: 0.0.1
 
 type: storage
 as_plugin: true
@@ -14,60 +14,59 @@ commands:
   -
     command_name: read
     description: read content from a file with the specified path.
-    parameters:
-      -
-        name: file_path
-        type: string
-        description: the path to the file.
-        required: true
-        example: memory/data/last.txt
+    parameter:
+      type:
+        file_path:
+          type: string
+          description: the path to the file.
+          required: true
+          example: memory/data/last.txt
     response:
-      -
-        name: content
-        type: string
-        description: the content of the file.
-        optional: false
+      type:
+        content:
+          type: string
+          description: the content of the file.
+          optional: false
   -
     command_name: write
     description: write content to a file with the specified path.
-    parameters:
-      -
-        name: file_path
-        type: string
-        description: the path to the file.
-        required: true
-        example: memory/data/to_be_written.txt
-      -
-        name: content
-        type: string
-        description: the content to be written to the file.
-        required: true
+    parameter:
+      type:
+        file_path:
+          type: string
+          description: the path to the file.
+          required: true
+          example: memory/data/to_be_written.txt
+        content:
+          type: string
+          description: the content to be written to the file.
+          required: true
     response:
-      -
-        name: status
-        type: bool
-        description: if the writing operation success or not.
-        optional: false
+      type:
+        status:
+          type: bool
+          description: if the writing operation success or not.
+          optional: false
   -
     command_name: delete
     description: delete a file represented by the given path.
-    parameters:
-      -
-        name: file_path
-        type: string
-        description: the path to the file
-        required: true
-        example: memory/data/need_to_be_deleted.txt
+    parameter:
+      type:
+        file_path:
+          type: string
+          description: the path to the file
+          required: true
+          example: memory/data/need_to_be_deleted.txt
     response:
-      -
-        name: status
-        type: bool
-        description: if the deleting operation success or not.
-        optional: false
+      type:
+        status:
+          type: bool
+          description: if the deleting operation success or not.
+          optional: false
 
 setup:
   pip:
-    - concopilot
+    - concopilot>=0.0.3
   package: concopilot.basic.storage.disk
 
 url: https://github.com/concopilot/concopilot

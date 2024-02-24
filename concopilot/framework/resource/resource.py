@@ -2,7 +2,7 @@
 
 import abc
 
-from typing import Dict, TYPE_CHECKING
+from typing import Dict, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .manager import ResourceManager
@@ -55,5 +55,5 @@ class Resource(AbstractPlugin):
         """
         pass
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}
