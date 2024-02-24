@@ -3,7 +3,7 @@
 import abc
 import uuid
 
-from typing import Dict, Union, List, Optional
+from typing import Dict, Union, List, Optional, Any
 
 from ..plugin.plugin import Plugin, AbstractPlugin
 from .promptgenerator import PluginPromptGenerator
@@ -87,7 +87,7 @@ class PluginManager(AbstractPlugin):
 
     @property
     @abc.abstractmethod
-    def plugin_id_map(self) -> Dict[Union[uuid.UUID, str], Plugin]:
+    def plugin_id_map(self) -> Dict[Union[uuid.UUID, str, int], Plugin]:
         """
         :return: the map of managed plugins arranged by the plugin id
         """
@@ -110,7 +110,7 @@ class PluginManager(AbstractPlugin):
         """
         pass
 
-    def get_plugin(self, *, id: Union[uuid.UUID, str] = None, name: str = None) -> Optional[Plugin]:
+    def get_plugin(self, *, id: Union[uuid.UUID, str, int] = None, name: str = None) -> Optional[Plugin]:
         """
         Retrieve a plugin with its id and name.
 
@@ -128,7 +128,7 @@ class PluginManager(AbstractPlugin):
         else:
             return None
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}
 
 
@@ -141,7 +141,7 @@ class BasicPluginManager(PluginManager):
         elif self.config.plugin_prompt_generator is not None:
             self.plugin_prompt_generator=component.create_component(self.config.plugin_prompt_generator)
         self._plugins: List[Plugin] = []
-        self._plugin_id_map: Dict[Union[uuid.UUID, str], Plugin] = {}
+        self._plugin_id_map: Dict[Union[uuid.UUID, str, int], Plugin] = {}
         self._plugin_name_map: Dict[str, Plugin] = {}
         if self.config.plugins is not None:
             for plugin_config in self.config.plugins:
@@ -173,7 +173,7 @@ class BasicPluginManager(PluginManager):
         return self._plugins
 
     @property
-    def plugin_id_map(self) -> Dict[Union[uuid.UUID, str], Plugin]:
+    def plugin_id_map(self) -> Dict[Union[uuid.UUID, str, int], Plugin]:
         return self._plugin_id_map
 
     @property
@@ -206,5 +206,5 @@ class BasicPluginManager(PluginManager):
         self.plugin_id_map[plugin.id]=plugin
         self.plugin_name_map[plugin.name]=plugin
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}

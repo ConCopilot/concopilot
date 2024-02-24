@@ -5,7 +5,7 @@ import re
 import regex
 import logging
 
-from typing import Dict, Tuple, Any, Optional
+from typing import List, Dict, Tuple, Any, Optional
 
 from .....framework.message import Message
 from .....framework.message.manager import MessageManager
@@ -21,46 +21,62 @@ class BasicJsonMessageManager(MessageManager):
     def __init__(self, config: Dict):
         super(BasicJsonMessageManager, self).__init__(config)
 
-    def parse(self, response: InteractResponse) -> Message:
-        sender=None
-        receiver=None
-        content=None
-        time=None
+    def parse(self, response: InteractResponse) -> List[Message]:
+        msg_list=[]
         if response.content:
             try:
                 reply=fix_json_using_multiple_techniques(response.content)
-                if isinstance(reply, dict):
-                    sender=reply.pop('sender', None)
-                    receiver=reply.pop('receiver', None)
-                    content=reply.pop('content', None)
-                    time=reply.pop('time', None)
+                if isinstance(reply, List):
+                    for item in reply:
+                        msg_list.append(BasicJsonMessageManager.parse_as_msg(item))
                 else:
-                    content=reply
-                    reply={}
+                    msg_list.append(BasicJsonMessageManager.parse_as_msg(reply))
             except Exception as e:
                 logger.warning('response.content parse failed!', exc_info=e)
-                content=response.content
-                reply={}
-        else:
-            reply={}
+                msg_list.append(Message(content=response.content))
         if response.plugin_call:
-            receiver=Identity(
-                role='plugin',
-                name=response.plugin_call.plugin_name
-            )
-            content=Message.Content(
-                command=response.plugin_call.command,
-                param=response.plugin_call.param
-            )
-        return Message(
+            msg_list.append(Message(
+                receiver=Identity(
+                    role='plugin',
+                    name=response.plugin_call.plugin_name
+                ),
+                content_type='command',
+                content=Message.Command(
+                    command=response.plugin_call.command,
+                    param=response.plugin_call.param
+                ),
+                time=settings.current_time()
+            ))
+        return msg_list
+
+    @staticmethod
+    def parse_as_msg(item: Any):
+        sender=None
+        receiver=None
+        content_type=None
+        time=None
+        if isinstance(item, Dict):
+            sender=item.pop('sender', None)
+            receiver=item.pop('receiver', None)
+            content_type=item.pop('content_type', None)
+            content=item.pop('content', None)
+            time=item.pop('time', None)
+        else:
+            content=item
+            item={}
+        msg=Message(
             sender=sender,
             receiver=receiver,
+            content_type=content_type,
             content=content,
             time=time if time else settings.current_time(),
-            **reply
+            **item
         )
+        if msg.content_type is None and msg.content.command:
+            msg.content_type='command'
+        return msg
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}
 
 

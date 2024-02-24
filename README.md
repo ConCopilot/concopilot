@@ -71,16 +71,59 @@ pip install --upgrade concopilot
             # --working-directory=<your_working_directory>
     ```
 
-##### Quick example
+##### Quick examples
 
-1. Download this simplified Auto-GPT like [example copilot](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/auto/.config/config.yaml).
-2. Run it:
+You may like to download the config files and modify some parameters first, such as API keys, service ports, etc.
+Run `conpack build` first, and then find the corresponding `config.yaml` file from the ".runtime" folder.
+The directory path is composed by the components `group_id`, `artifact_id`, and `version`.
+
+1. Simple Chat:
 
     ```shell
     conpack run
-            --config-file=<your_downloaded_file_path>
+            --group-id=org.concopilot.example.copilot
+            --artifact-id=basic-chat-copilot
+            --version=<version>
+            # --config-file=<config.yaml|config_glm.yaml|config_rwkv.yaml|config_web.yaml|config_web_glm.yaml|config_web_rwkv.yaml>
             # --working-directory=<your_working_directory>
+            # --skip-setup
     ```
+
+    [latest version](https://concopilot.org/component/org.concopilot.example.copilot/basic-chat-copilot)
+
+    [component source](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/chat)
+
+2. Chat with Tools:
+
+    ```shell
+    conpack run
+            --group-id=org.concopilot.example.copilot
+            --artifact-id=basic-chat-with-tool-copilot
+            --version=<version>
+            # --config-file=<config.yaml|config_ocr.yaml|config_ocr_glm.yaml>
+            # --working-directory=<your_working_directory>
+            # --skip-setup
+    ```
+
+    [latest version](https://concopilot.org/component/org.concopilot.example.copilot/basic-chat-with-tool-copilot)
+
+    [component source](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/chatwithtool)
+
+3. Simplified Auto-GPT like:
+
+    ```shell
+    conpack run
+            --group-id=org.concopilot.example.copilot
+            --artifact-id=basic-auto-copilot
+            --version=<version>
+            # --config-file=<config.yaml|config_web.yaml>
+            # --working-directory=<your_working_directory>
+            # --skip-setup
+    ```
+
+    [latest version](https://concopilot.org/component/org.concopilot.example.copilot/basic-auto-copilot)
+
+    [component source](https://github.com/ConCopilot/concopilot-examples/blob/main/concopilot_examples/copilot/auto)
 
 ### For developers
 
@@ -100,7 +143,7 @@ pip install --upgrade concopilot
 
 2. Extend `AbstractPlugin` for your plugin, and implement
     - the `__init__` method which receives only one `dict` parameter containing its configuration.
-    - the `command` method which receives a command name `string` and a parameter `dict` and returns its response in a `dict`.
+    - the `command` method which receives a command name `string` and a parameter (recommends in type `dict`) and returns its response (recommends in type `dict`, too).
 
     ```python
     from concopilot.framework.plugin import AbstractPlugin
@@ -111,7 +154,7 @@ pip install --upgrade concopilot
             super(YourPlugin, self).__init__(config)
             # ...
 
-        def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+        def command(self, command_name: str, param: Any, **kwargs) -> Any:
             # ...
     ```
 

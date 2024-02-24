@@ -111,7 +111,7 @@ class DiskStorage(Storage):
             return True
         return False
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         file_path=param['file_path']
         if os.path.isabs(file_path):
             raise ValueError('Only relative file paths are acceptable.')
@@ -124,18 +124,19 @@ class DiskStorage(Storage):
             if self.asset_key:
                 if self.asset_key not in self.context.assets:
                     self.context.assets[self.asset_key]=Asset(
-                        type='storage position',
-                        data=[]
+                        asset_type='storage location',
+                        content_type="<class 'list'>",
+                        content=[]
                     )
-                self.context.assets[self.asset_key].data.append(file_path)
-                self.context.assets[self.asset_key].data=list(set(self.context.assets[self.asset_key].data))
+                self.context.assets[self.asset_key].content.append(file_path)
+                self.context.assets[self.asset_key].content=list(set(self.context.assets[self.asset_key].content))
             return ClassDict(status=True)
         elif command_name=='delete':
             self.remove(file_path)
             if self.asset_key and self.asset_key in self.context.assets:
-                if file_path in self.context.assets[self.asset_key].data:
-                    self.context.assets[self.asset_key].data.remove(file_path)
-                if len(self.context.assets[self.asset_key].data)==0:
+                if file_path in self.context.assets[self.asset_key].content:
+                    self.context.assets[self.asset_key].content.remove(file_path)
+                if len(self.context.assets[self.asset_key].content)==0:
                     self.context.assets.pop(self.asset_key)
             return ClassDict(status=True)
         else:

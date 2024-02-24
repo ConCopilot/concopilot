@@ -2,7 +2,7 @@
 
 import abc
 
-from typing import Dict
+from typing import List, Dict, Any
 
 from ..message import Message
 from ..plugin import AbstractPlugin
@@ -29,7 +29,7 @@ class MessageManager(AbstractPlugin):
         assert self.type=='message_manager'
 
     @abc.abstractmethod
-    def parse(self, response: InteractResponse) -> Message:
+    def parse(self, response: InteractResponse) -> List[Message]:
         """
         Parse the input `InteractResponse` object into a `Message` object.
 
@@ -38,5 +38,5 @@ class MessageManager(AbstractPlugin):
         """
         pass
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}

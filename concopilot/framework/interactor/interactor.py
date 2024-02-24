@@ -2,7 +2,7 @@
 
 import abc
 
-from typing import Dict
+from typing import Dict, Any
 
 from ..plugin import AbstractPlugin, PluginManager
 from ..resource import ResourceManager
@@ -57,7 +57,7 @@ class Interactor(AbstractPlugin):
         """
         pass
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}
 
 

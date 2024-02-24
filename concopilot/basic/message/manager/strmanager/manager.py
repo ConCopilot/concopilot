@@ -2,7 +2,7 @@
 
 import logging
 
-from typing import Dict
+from typing import List, Dict, Any
 
 from concopilot.framework.message import Message
 from concopilot.framework.message.manager import MessageManager
@@ -18,26 +18,28 @@ class BasicStrMessageManager(MessageManager):
     def __init__(self, config: Dict):
         super(BasicStrMessageManager, self).__init__(config)
 
-    def parse(self, response: InteractResponse) -> Message:
-        receiver=None
-        content=None
+    def parse(self, response: InteractResponse) -> List[Message]:
+        msg_list=[]
         if response.content:
-            content=Message.Content(text=response.content)
+            msg_list.append(Message(
+                content_type='text/plain',
+                content=response.content,
+                time=settings.current_time(),
+            ))
         if response.plugin_call:
-            receiver=Identity(
-                role='plugin',
-                name=response.plugin_call.plugin_name
-            )
-            content=Message.Content(
-                command=response.plugin_call.command,
-                param=response.plugin_call.param
-            )
-        return Message(
-            sender=None,
-            receiver=receiver,
-            content=content,
-            time=settings.current_time(),
-        )
+            msg_list.append(Message(
+                receiver=Identity(
+                    role='plugin',
+                    name=response.plugin_call.plugin_name
+                ),
+                content_type='command',
+                content=Message.Command(
+                    command=response.plugin_call.command,
+                    param=response.plugin_call.param
+                ),
+                time=settings.current_time(),
+            ))
+        return msg_list
 
-    def command(self, command_name: str, param: Dict, **kwargs) -> Dict:
+    def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}

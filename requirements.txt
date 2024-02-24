@@ -1,4 +1,5 @@
 PyYAML
+numpy
 
 #package
 validators>=0.20.7

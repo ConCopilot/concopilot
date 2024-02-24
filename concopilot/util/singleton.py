@@ -6,10 +6,10 @@ import abc
 class SingletonMeta(abc.ABCMeta, type):
     _instances={}
 
-    def __call__(self, *args, **kwargs):
-        if self not in self._instances:
-            self._instances[self]=super(SingletonMeta, self).__call__(*args, **kwargs)
-        return self._instances[self]
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls]=super(SingletonMeta, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
 
 class Singleton(abc.ABC, metaclass=SingletonMeta):

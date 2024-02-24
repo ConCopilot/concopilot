@@ -27,7 +27,6 @@ def get_args(args=None) -> Tuple[ClassDict, List[str]]:
 
 
 def build(param: ClassDict, *args, **kwargs) -> Plugin:
-    # TODO: make a docker isolated env for safety issue
     if param.group_id and param.artifact_id and param.version:
         with requests.Session() as s:
             settings.network_session=s

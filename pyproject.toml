@@ -1,6 +1,6 @@
 [project]
 name="concopilot"
-version="0.0.2"
+version="0.0.3"
 authors=[
     {name="ZHONG Weikun", email="zhong.weikun@live.com"}
 ]
@@ -13,6 +13,7 @@ classifiers = [
 ]
 dependencies=[
     "PyYAML",
+    "numpy",
 
     #package
     "validators>=0.20.7",
