@@ -7,8 +7,8 @@ from typing import Dict, Union, List, Any
 
 from ..resource import Resource
 from ..plugin import AbstractPlugin
+from ..context import Context
 from ...util.initializer import component
-from ...util.context import Context
 
 
 class ResourceManager(AbstractPlugin):

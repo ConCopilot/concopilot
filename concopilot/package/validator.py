@@ -7,7 +7,7 @@ from typing import List, Tuple
 from ..util.config.tool import read_config_file
 
 
-logger=logging.getLogger('[Concopilot]')
+logger=logging.getLogger('[ConCopilot]')
 
 
 def validate_component_config_file(file_name: str) -> Tuple[str, str, str]:

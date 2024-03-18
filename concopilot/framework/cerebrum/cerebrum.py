@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 
 import abc
+import uuid
 
-from typing import Dict, Mapping, List, Any
+from typing import Dict, Mapping, List, Union, Any
 
 from ..plugin import AbstractPlugin, PluginManager
 from ..resource.category import LLM
 from ..message import Message
-from ...util.context import Asset
+from ...framework.asset import Asset
 from ...util import ClassDict
 
 
@@ -43,18 +44,20 @@ class InteractResponse(ClassDict):
             plugin_name: str,
             command: str,
             param: Any,
+            id: Union[uuid.UUID, str, int] = None,
             **kwargs
         ):
             super(InteractResponse.PluginCall, self).__init__(**kwargs)
             self.plugin_name: str = plugin_name
             self.command: str = command
             self.param: Any = ClassDict.convert(param) if isinstance(param, Mapping) else param
+            self.id: Union[uuid.UUID, str, int] = id
 
     def __init__(
         self,
         *,
         content: str = None,
-        plugin_call: PluginCall = None,
+        plugin_calls: List[Dict] = None,
         input_token_len: int = None,
         output_token_len: int = None,
         cost: float = None,
@@ -62,7 +65,7 @@ class InteractResponse(ClassDict):
     ):
         super(InteractResponse, self).__init__(**kwargs)
         self.content: str = content
-        self.plugin_call: InteractResponse.PluginCall = plugin_call
+        self.plugin_calls: List[InteractResponse.PluginCall] = [InteractResponse.PluginCall(**ClassDict.convert(call)) for call in plugin_calls] if plugin_calls else None
 
         self.input_token_len: int = input_token_len
         self.output_token_len: int = output_token_len

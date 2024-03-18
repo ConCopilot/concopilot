@@ -11,8 +11,8 @@ from .storage import Storage
 from .interface import UserInterface
 from .message.manager import MessageManager
 from .interactor import Interactor
+from .context import Context
 from ..util.initializer import component
-from ..util.context import Context
 from ..util import ClassDict
 
 

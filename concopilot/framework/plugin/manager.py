@@ -8,8 +8,8 @@ from typing import Dict, Union, List, Optional, Any
 from ..plugin.plugin import Plugin, AbstractPlugin
 from .promptgenerator import PluginPromptGenerator
 from ..resource import ResourceManager
+from ..context import Context
 from ...util.initializer import component
-from ...util.context import Context
 
 
 class PluginManager(AbstractPlugin):

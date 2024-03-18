@@ -16,7 +16,7 @@ from ..util.config.tool import get_config_folder
 from ..util.config import versions
 
 
-logger=logging.getLogger('[Concopilot]')
+logger=logging.getLogger('[ConCopilot]')
 
 
 env=Env()

@@ -2,7 +2,7 @@
 
 import abc
 
-from typing import Dict, Union
+from typing import List, Dict, Union
 
 from ...resource import Resource
 from ....util import ClassDict
@@ -33,9 +33,10 @@ class LLM(Model):
             self.require_cost: bool = require_cost
 
     class LLMResponse(ClassDict):
-        def __init__(self, content: str, input_token_len: int = None, output_token_len: int = None, cost: float = None, **kwargs):
+        def __init__(self, content: str = None, calls: List[ClassDict] = None, input_token_len: int = None, output_token_len: int = None, cost: float = None, **kwargs):
             super(LLM.LLMResponse, self).__init__(**kwargs)
             self.content: str = content
+            self.calls: List[ClassDict] = [ClassDict.convert(call) for call in calls] if calls else None
 
             self.input_token_len: int = input_token_len
             self.output_token_len: int = output_token_len
