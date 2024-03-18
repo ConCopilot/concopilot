@@ -10,7 +10,7 @@ from typing import List, Dict, Tuple, Any, Optional
 from .....framework.message import Message
 from .....framework.message.manager import MessageManager
 from .....framework.cerebrum import InteractResponse
-from .....util.identity import Identity
+from .....framework.identity import Identity
 from .....package.config import Settings
 
 settings=Settings()
@@ -34,19 +34,18 @@ class BasicJsonMessageManager(MessageManager):
             except Exception as e:
                 logger.warning('response.content parse failed!', exc_info=e)
                 msg_list.append(Message(content=response.content))
-        if response.plugin_call:
-            msg_list.append(Message(
-                receiver=Identity(
-                    role='plugin',
-                    name=response.plugin_call.plugin_name
-                ),
-                content_type='command',
-                content=Message.Command(
-                    command=response.plugin_call.command,
-                    param=response.plugin_call.param
-                ),
-                time=settings.current_time()
-            ))
+        if response.plugin_calls:
+            for plugin_call in response.plugin_calls:
+                content=Message.Command(**plugin_call)
+                msg_list.append(Message(
+                    receiver=Identity(
+                        role='plugin',
+                        name=content.pop('plugin_name', None)
+                    ),
+                    content_type='command',
+                    content=content,
+                    time=settings.current_time()
+                ))
         return msg_list
 
     @staticmethod

@@ -10,7 +10,7 @@ from typing import Dict, Any
 from ....framework.storage import Storage
 from ....framework.resource import ResourceManager
 from ....framework.resource.category import Disk
-from ....util.context import Asset
+from ....framework.asset import Asset
 from ....util import ClassDict
 from ....package.config import Settings
 

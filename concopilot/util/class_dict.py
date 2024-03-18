@@ -4,6 +4,8 @@ import copy
 
 from typing import Sequence, Mapping, Any
 
+from . import dicts
+
 
 class ClassDict(dict):
     def __init__(self, **kwargs):
@@ -44,6 +46,9 @@ class ClassDict(dict):
             setattr(result, copy.deepcopy(k, memodict), copy.deepcopy(v, memodict))
         return result
 
+    def hasattr(self, item):
+        return item in self
+
     def update_nested(self, other: Mapping) -> None:
         for k, v in other.items():
             if isinstance(v, Mapping):
@@ -57,6 +62,9 @@ class ClassDict(dict):
                     self[k]=ClassDict.convert(v)
             else:
                 self[k]=v
+
+    def flatten(self, parent_key: str = '', sep: str = '.', keep_none: bool = False, keep_container_type: bool = False) -> dict[str, Any]:
+        return dicts.flatten_dict(self, parent_key=parent_key, sep=sep, keep_none=keep_none, keep_container_type=keep_container_type)
 
     @staticmethod
     def convert(obj: Any) -> Any:

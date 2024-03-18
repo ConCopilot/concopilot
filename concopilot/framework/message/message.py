@@ -6,11 +6,11 @@ import logging
 
 from typing import Dict, Mapping, Union, Any
 
+from ...framework.identity import Identity
 from ...util import ClassDict
-from ...util.identity import Identity
 
 
-logger=logging.getLogger('[Concopilot]')
+logger=logging.getLogger('[ConCopilot]')
 
 
 class Message(ClassDict):
@@ -20,6 +20,7 @@ class Message(ClassDict):
             command: str = None,
             param: Any = None,
             response: Any = None,
+            id: Union[uuid.UUID, str, int] = None,
             **kwargs
         ):
             """
@@ -37,6 +38,8 @@ class Message(ClassDict):
                 self.param: Any = ClassDict.convert(param) if isinstance(param, Mapping) else param
             if response is not None:
                 self.response: Any = ClassDict.convert(response) if isinstance(response, Mapping) else param
+            if id is not None:
+                self.id: Union[uuid.UUID, str, int] = id
 
     class RetrievalMode(enum.IntEnum):
         ALL=0,

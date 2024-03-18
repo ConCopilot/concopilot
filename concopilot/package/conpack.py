@@ -14,7 +14,7 @@ from concopilot.framework import run
 from concopilot.util import ClassDict
 
 
-def get_args(args=None) -> Tuple[argparse.Namespace, List[str]]:
+def get_args(args=None) -> Tuple[ClassDict, List[str]]:
     parser=argparse.ArgumentParser()
     parser.add_argument('--settings', type=str, default=None)
     parser.add_argument('--working-directory', type=str, default=None)
@@ -35,6 +35,7 @@ def get_args(args=None) -> Tuple[argparse.Namespace, List[str]]:
 
     parser.add_argument('--help-cmd', action='store_true', default=None)
     param, argv=parser.parse_known_args(args)
+    param=ClassDict(**param.__dict__)
     return param, argv
 
 
@@ -48,24 +49,19 @@ def get_config_folder(path: str):
     return os.path.join(path, config.default_config_folder)
 
 
-def valid_config_folders(root_dir: str) -> Generator[str, None, None]:
-    for name in os.listdir(root_dir):
-        path=os.path.join(root_dir, name)
-        if name!='__pycache__' and os.path.isdir(path):
-            config_folder=get_config_folder(path)
-            if os.path.isdir(config_folder):
-                yield config_folder
-            else:
-                yield from valid_config_folders(path)
+def valid_config_folders(root_dir: str, level: int = -1) -> Generator[str, None, None]:
+    config_folder=get_config_folder(root_dir)
+    if os.path.isdir(config_folder):
+        yield config_folder
+    elif level!=0:
+        for name in os.listdir(root_dir):
+            path=os.path.join(root_dir, name)
+            if name!='__pycache__' and os.path.isdir(path):
+                yield from valid_config_folders(path, level-1)
 
 
 def get_valid_config_folders(root_dir: str, recursive: bool = False):
-    if recursive:
-        yield from valid_config_folders(root_dir)
-    else:
-        config_folder=get_config_folder(root_dir)
-        if os.path.isdir(config_folder):
-            yield config_folder
+    yield from valid_config_folders(root_dir, level=-1 if recursive else 0)
 
 
 def get_valid_configs(src_folder: str, recursive: bool = False) -> Generator[Tuple[str, str], None, None]:
@@ -141,12 +137,13 @@ def get_help_str(command: str = None) -> str:
                 '               [*argv]')
 
 
-def execute(args=None):
+def execute(*args, **kwargs):
     import logging
     logging.basicConfig(level=logging.INFO)
-    logger=logging.getLogger('[Concopilot]')
+    logger=logging.getLogger('[ConCopilot]')
 
-    param, argv=get_args(args)
+    param, argv=get_args(args if args else None)
+    param.update({k: v for k, v in kwargs.items() if k in param})
     if not param.src_folder:
         param.src_folder='.'
     settings=config.load_settings(settings_path=param.settings, working_directory=param.working_directory, skip_setup=param.skip_setup, pip_params=param.pip_params)
@@ -176,16 +173,17 @@ def execute(args=None):
         print(get_help_str(command))
         folder_count=-1
     elif command=='build':
-        # check and install component dependencies
         # copy component config files into ./.runtime
+        # check and install component dependencies
         run_param, run_argv=run.get_args(argv)
+        run_param.update({k: v for k, v in kwargs.items() if k in run_param})
         if len(run_param)>0:
             logger.info(f'---------------- building ----------------')
             plugin=run.build(run_param, *run_argv)
             folder_count+=1
         else:
             plugin_list=[]
-            for src_config_folder, src_config_file in get_valid_configs(param.src_folder, False):
+            for src_config_folder, src_config_file in get_valid_configs(param.src_folder, param.recursive):
                 logger.info(f'---------------- building {src_config_folder} ----------------')
                 if os.path.isfile(src_config_file):
                     plugin_list.append([src_config_file, run.build(ClassDict(config_file=src_config_file), argv[2:])])
@@ -193,17 +191,18 @@ def execute(args=None):
     elif command=='run':
         # do build, and run copilot
         run_param, run_argv=run.get_args(argv)
+        run_param.update({k: v for k, v in kwargs.items() if k in run_param})
         if len(run_param)>0:
             logger.info(f'---------------- running ----------------')
             run.run(run_param, *run_argv)
             folder_count+=1
         else:
-            for src_config_folder, src_config_file in get_valid_configs(param.src_folder, False):
+            for src_config_folder, src_config_file in get_valid_configs(param.src_folder, param.recursive):
                 logger.info(f'---------------- running {src_config_folder} ----------------')
                 run.run(ClassDict(config_file=src_config_file), argv[2:])
                 folder_count+=1
     elif command=='install':
-        # check if current folder is a component definition
+        # check if source folder is a component definition
         # copy config files from ./.config into local repo
         for src_config_folder, src_config_file in get_valid_configs(param.src_folder, param.recursive):
             if not param.skip_setup and os.path.isfile(src_config_file):
@@ -234,7 +233,12 @@ def execute(args=None):
     if plugin is not None:
         return plugin
     elif plugin_list is not None:
-        return plugin_list
+        if param.recursive:
+            return plugin_list
+        elif len(plugin_list)>0:
+            return plugin_list[0]
+        else:
+            return None
     else:
         return None
 

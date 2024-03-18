@@ -3,7 +3,7 @@
 import uuid
 
 from typing import Union
-from .. import ClassDict
+from ...util import ClassDict
 
 
 class Identity(ClassDict):

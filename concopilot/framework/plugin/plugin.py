@@ -8,9 +8,10 @@ from typing import Dict, List, Union, Optional, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from ..resource import Resource, ResourceManager
-    from ...util.context import Context
+    from ..context import Context
+
 from ..message import Message
-from ...util.identity import Identity
+from ...framework.identity import Identity
 from ...util import ClassDict
 from ...package.config import Settings
 
@@ -452,14 +453,14 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
         if not msg.content.command:
             raise ValueError('Message content contains NO plugin command! `msg.content.command` must be set.')
 
+        content=Message.Command(**msg.content)
+        content.pop('param', None)
+        content.response=self.command(msg.content.command, msg.content.param)
         msg=Message(
             sender=Identity(role=msg.receiver.role, id=self.id, name=self.name),
             receiver=msg.sender,
             content_type='command',
-            content=Message.Command(
-                command=msg.content.command,
-                response=self.command(msg.content.command, msg.content.param if msg.content.param else ClassDict())
-            ),
+            content=content,
             time=settings.current_time()
         )
         return msg
