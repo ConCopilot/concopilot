@@ -2,7 +2,7 @@
 
 from typing import Dict
 
-from concopilot.framework.resource import BasicResourceManager
+from ....framework.resource import BasicResourceManager
 
 
 def constructor(config: Dict):

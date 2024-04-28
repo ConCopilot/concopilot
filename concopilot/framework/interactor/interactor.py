@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import abc
+import enum
 
 from typing import Dict, Any
 
@@ -18,6 +19,13 @@ class Interactor(AbstractPlugin):
     During developing, generally,
     there's no need to implement `Copilot` interface for a new copilot, implement an `Interactor` interface instead.
     """
+
+    class Status(enum.IntEnum):
+        NOT_STARTED=0,
+        STARTING=1,
+        RUNNING=2,
+        STOPPING=3,
+        STOPPED=4
 
     def __init__(self, config: Dict):
         """
@@ -57,6 +65,42 @@ class Interactor(AbstractPlugin):
         """
         pass
 
+    @property
+    @abc.abstractmethod
+    def status(self) -> Status:
+        """
+        Return the status of the interactor.
+
+        Implementations should stop and exit the interaction loop when this method returns `STOPPING` or `STOPPED`.
+
+        :return: the status of the interactor
+        """
+        pass
+
+    @status.setter
+    @abc.abstractmethod
+    def status(self, value: Status):
+        """
+        The setter of the interactor status.
+
+        :param value: the value of the interactor status
+        """
+        pass
+
+    @abc.abstractmethod
+    def start(self):
+        """
+        Begin to start the interaction loop.
+        """
+        pass
+
+    @abc.abstractmethod
+    def stop(self):
+        """
+        Request to stop the interaction loop.
+        """
+        pass
+
     def command(self, command_name: str, param: Any, **kwargs) -> Any:
         return {}
 
@@ -76,8 +120,24 @@ class BasicInteractor(Interactor, metaclass=abc.ABCMeta):
         self.plugin_manager: PluginManager = plugin_manager
         self.message_manager: MessageManager = message_manager
 
+        self._status: Interactor.Status = Interactor.Status.NOT_STARTED
+
     def setup_prompts(self):
         self.plugin_manager.generate_prompt()
 
     def setup_plugins(self):
         self.cerebrum.setup_plugins(self.plugin_manager)
+
+    @property
+    def status(self) -> Interactor.Status:
+        return self._status
+
+    @status.setter
+    def status(self, value: Interactor.Status):
+        self._status=value
+
+    def start(self):
+        self.status=Interactor.Status.STARTING
+
+    def stop(self):
+        self.status=Interactor.Status.STOPPING

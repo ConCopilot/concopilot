@@ -2,11 +2,11 @@
 
 from typing import Dict
 
-from ....framework.plugin.manager import BasicPluginManager
+from ....framework.interface import BasicDuplexUserInterface
 
 
 def constructor(config: Dict):
-    return BasicPluginManager(config)
+    return BasicDuplexUserInterface(config)
 
 
 __all__=[

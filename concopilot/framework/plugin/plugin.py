@@ -59,6 +59,21 @@ class Plugin(metaclass=abc.ABCMeta):
         """
         pass
 
+    def initialize(self):
+        """
+        Initialize this plugin basing on its `config` property if necessary.
+
+        Developers should consider using `Resources` first,
+        because they can be shared across plugins.
+        """
+        pass
+
+    def finalize(self):
+        """
+        Finalize/Release this plugin if necessary.
+        """
+        pass
+
     @abc.abstractmethod
     def config_file_path(self, file_name: str = None) -> str:
         """
@@ -174,7 +189,7 @@ class Plugin(metaclass=abc.ABCMeta):
         pass
 
     @abc.abstractmethod
-    def get_resource(self, *, resource_id: str = None, resource_name: str = None, resource_type: str = None) -> Optional['Resource']:
+    def get_resource(self, *, resource_id: Union[uuid.UUID, str, int] = None, resource_name: str = None, resource_type: str = None) -> Optional['Resource']:
         """
         Retrieve a resource with its resource id, resource name, and resource_type.
 
@@ -461,7 +476,8 @@ class AbstractPlugin(Plugin, metaclass=abc.ABCMeta):
             receiver=msg.sender,
             content_type='command',
             content=content,
-            time=settings.current_time()
+            time=settings.current_time(),
+            thrd_id=msg.thrd_id
         )
         return msg
 

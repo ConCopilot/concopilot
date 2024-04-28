@@ -2,7 +2,7 @@
 
 from typing import Dict
 
-from concopilot.framework.resource.category import Disk
+from .....framework.resource.category import Disk
 
 
 def constructor(config: Dict):

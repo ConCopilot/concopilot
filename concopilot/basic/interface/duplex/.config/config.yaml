@@ -1,0 +1,27 @@
+group_id: org.concopilot.basic.interface
+artifact_id: basic-duplex-user-interface
+version: 0.0.0
+
+type: user_interface
+as_plugin: false
+
+setup:
+  pip:
+    - concopilot>=0.0.5
+  package: concopilot.basic.interface.duplex
+
+url: https://github.com/concopilot/concopilot
+
+developers:
+  -
+    name: ZHONG Weikun
+    id: xiaoshenxian
+    url: https://github.com/xiaoshenxian
+
+licenses:
+  -
+    name: The Apache License, Version 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.txt
+
+config:
+  interrupt_checking_timeout: 1

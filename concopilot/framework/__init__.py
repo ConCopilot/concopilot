@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from .copilot import Copilot, BasicCopilot
+from .copilot import Copilot, BasicCopilot, Agent, BasicAgent
 
 __all__=[
     'Copilot',
-    'BasicCopilot'
+    'BasicCopilot',
+    'Agent',
+    'BasicAgent'
 ]

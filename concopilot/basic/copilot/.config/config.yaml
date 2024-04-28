@@ -1,13 +1,13 @@
 group_id: org.concopilot.basic.copilot
 artifact_id: basic-copilot
-version: 0.0.0
+version: 0.0.1
 
 type: copilot
 as_plugin: false
 
 setup:
   pip:
-    - concopilot
+    - concopilot>=0.0.5
   package: concopilot.basic.copilot
 
 url: https://github.com/concopilot/concopilot
@@ -74,3 +74,6 @@ config:
     group_id: <user_interface_group_id>
     artifact_id: <user_interface_artifact_id>
     version: <user_interface_version>
+
+  inherit_resources: false
+  inherit_self_resources: false

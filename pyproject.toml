@@ -1,6 +1,6 @@
 [project]
 name="concopilot"
-version="0.0.4"
+version="0.0.5"
 authors=[
     {name="ZHONG Weikun", email="zhong.weikun@live.com"}
 ]
