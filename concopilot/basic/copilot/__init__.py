@@ -2,7 +2,7 @@
 
 from typing import Dict
 
-from concopilot.framework import BasicCopilot
+from ...framework import BasicCopilot
 
 
 def constructor(config: Dict):

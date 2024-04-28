@@ -41,6 +41,20 @@ class PluginManager(AbstractPlugin):
         for plugin in self.plugins:
             plugin.config_context(context)
 
+    def initialize(self):
+        """
+        Initialize all plugins.
+        """
+        for plugin in self.plugins:
+            plugin.initialize()
+
+    def finalize(self):
+        """
+        Finalize all plugins.
+        """
+        for plugin in self.plugins:
+            plugin.finalize()
+
     @abc.abstractmethod
     def generate_prompt(self):
         """

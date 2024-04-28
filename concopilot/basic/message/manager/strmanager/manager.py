@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
+import uuid
 import logging
 
-from typing import List, Dict, Any
+from typing import List, Dict, Union, Any
 
-from concopilot.framework.message import Message
-from concopilot.framework.message.manager import MessageManager
-from concopilot.framework.cerebrum import InteractResponse
-from concopilot.framework.identity import Identity
-from concopilot.package.config import Settings
+from .....framework.message import Message
+from .....framework.message.manager import MessageManager
+from .....framework.cerebrum import InteractResponse
+from .....framework.identity import Identity
+from .....package.config import Settings
+
 
 settings=Settings()
 logger=logging.getLogger(__file__)
@@ -18,13 +20,14 @@ class BasicStrMessageManager(MessageManager):
     def __init__(self, config: Dict):
         super(BasicStrMessageManager, self).__init__(config)
 
-    def parse(self, response: InteractResponse) -> List[Message]:
+    def parse(self, response: InteractResponse, thrd_id: Union[uuid.UUID, str, int] = None) -> List[Message]:
         msg_list=[]
         if response.content:
             msg_list.append(Message(
                 content_type='text/plain',
                 content=response.content,
                 time=settings.current_time(),
+                thrd_id=thrd_id
             ))
         if response.plugin_calls:
             for plugin_call in response.plugin_calls:
@@ -37,6 +40,7 @@ class BasicStrMessageManager(MessageManager):
                     content_type='command',
                     content=content,
                     time=settings.current_time(),
+                    thrd_id=thrd_id
                 ))
         return msg_list
 

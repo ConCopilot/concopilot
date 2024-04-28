@@ -4,7 +4,7 @@ import json
 
 from typing import Dict, Optional
 
-from ....framework.interface import UserInterface
+from ....framework.interface import AgentDrivenSimplexUserInterface
 from ....framework.message import Message
 from ....package.config import Settings
 from ....util.jsons import JsonEncoder
@@ -13,7 +13,7 @@ from ....util.jsons import JsonEncoder
 settings=Settings()
 
 
-class CmdUserInterface(UserInterface):
+class CmdUserInterface(AgentDrivenSimplexUserInterface):
     def __init__(self, config: Dict):
         super(CmdUserInterface, self).__init__(config)
         self.user_msg_prefix: str = self.config.config.user_msg_prefix if self.config.config.user_msg_prefix else ''
@@ -25,7 +25,7 @@ class CmdUserInterface(UserInterface):
         self.last_sender=None
         self.last_receiver=None
 
-    def send_msg_user(self, msg: Message):
+    def send_msg_to_user(self, msg: Message):
         print(self.non_user_msg_prefix)
         if msg.content:
             if isinstance(msg.content, str):
@@ -38,8 +38,8 @@ class CmdUserInterface(UserInterface):
         self.last_sender=msg.sender
         self.last_receiver=msg.receiver
 
-    def on_msg_user(self, msg: Message) -> Optional[Message]:
-        self.send_msg_user(msg)
+    def on_msg_to_user(self, msg: Message) -> Optional[Message]:
+        self.send_msg_to_user(msg)
         return self.wait_user_msg()
 
     def has_user_msg(self) -> bool:
@@ -69,3 +69,10 @@ class CmdUserInterface(UserInterface):
             if not self.multiple_line_input or not line:
                 break
         return '\n'.join(texts)
+
+    def interrupt(self):
+        pass
+
+    @property
+    def interrupted(self) -> bool:
+        return False

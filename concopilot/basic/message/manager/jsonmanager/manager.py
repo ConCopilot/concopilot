@@ -3,15 +3,17 @@
 import json
 import re
 import regex
+import uuid
 import logging
 
-from typing import List, Dict, Tuple, Any, Optional
+from typing import List, Dict, Tuple, Any, Union, Optional
 
 from .....framework.message import Message
 from .....framework.message.manager import MessageManager
 from .....framework.cerebrum import InteractResponse
 from .....framework.identity import Identity
 from .....package.config import Settings
+
 
 settings=Settings()
 logger=logging.getLogger(__file__)
@@ -21,19 +23,19 @@ class BasicJsonMessageManager(MessageManager):
     def __init__(self, config: Dict):
         super(BasicJsonMessageManager, self).__init__(config)
 
-    def parse(self, response: InteractResponse) -> List[Message]:
+    def parse(self, response: InteractResponse, thrd_id: Union[uuid.UUID, str, int] = None) -> List[Message]:
         msg_list=[]
         if response.content:
             try:
                 reply=fix_json_using_multiple_techniques(response.content)
                 if isinstance(reply, List):
                     for item in reply:
-                        msg_list.append(BasicJsonMessageManager.parse_as_msg(item))
+                        msg_list.append(BasicJsonMessageManager.parse_as_msg(item, thrd_id=thrd_id))
                 else:
-                    msg_list.append(BasicJsonMessageManager.parse_as_msg(reply))
+                    msg_list.append(BasicJsonMessageManager.parse_as_msg(reply, thrd_id=thrd_id))
             except Exception as e:
                 logger.warning('response.content parse failed!', exc_info=e)
-                msg_list.append(Message(content=response.content))
+                msg_list.append(Message(content=response.content, thrd_id=thrd_id))
         if response.plugin_calls:
             for plugin_call in response.plugin_calls:
                 content=Message.Command(**plugin_call)
@@ -44,12 +46,13 @@ class BasicJsonMessageManager(MessageManager):
                     ),
                     content_type='command',
                     content=content,
-                    time=settings.current_time()
+                    time=settings.current_time(),
+                    thrd_id=thrd_id
                 ))
         return msg_list
 
     @staticmethod
-    def parse_as_msg(item: Any):
+    def parse_as_msg(item: Any, thrd_id: Union[uuid.UUID, str, int] = None):
         sender=None
         receiver=None
         content_type=None
@@ -69,6 +72,7 @@ class BasicJsonMessageManager(MessageManager):
             content_type=content_type,
             content=content,
             time=time if time else settings.current_time(),
+            thrd_id=thrd_id,
             **item
         )
         if msg.content_type is None and msg.content.command:
